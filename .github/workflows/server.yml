@@ -1,0 +1,30 @@
+# Generate binary
+
+name: GoLang Server CI
+
+# Run on PR, commit or manually
+on: [push,pull_request,workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Generate Go Binary File
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        `
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+
+      - name: Build Go server file
+        run: |
+         cd server
+         go mod download
+         go build -o dsserver
+         cp dsserver ../
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: server-code
+          path: ./dsserver
