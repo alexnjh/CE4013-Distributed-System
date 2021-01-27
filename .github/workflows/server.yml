@@ -3,7 +3,16 @@
 name: GoLang Server CI
 
 # Run on PR, commit or manually
-on: [push,pull_request,workflow_dispatch]
+on:
+  push:
+    paths:
+      - '**.go'
+      - 'server/**'
+  pull_request:
+    paths:
+      - '**.go'
+      - 'server/**'
+  workflow_dispatch:
 
 jobs:
   build-linux:
