@@ -6,9 +6,9 @@ name: GoLang Server CI
 on: [push,pull_request,workflow_dispatch]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
-    name: Generate Go Binary File
+    name: Generate Linux Go Binary File
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -29,5 +29,55 @@ jobs:
       # Upload as artifact
       - uses: actions/upload-artifact@v2
         with:
-          name: server-code
+          name: server-linux
+          path: ./dsserver
+  build-mac:
+    runs-on: ubuntu-latest
+    name: Generate MacOS Go Binary File
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+
+      - name: Build Go server file
+        run: |
+         cd server
+         go mod download
+         go build -ldflags '-w -s' -o dsserver
+         cp dsserver ../
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: server-macos
+          path: ./dsserver
+  build-win:
+    runs-on: ubuntu-latest
+    name: Generate Windows Go Binary File
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+
+      - name: Build Go server file
+        run: |
+         cd server
+         go mod download
+         go build -ldflags '-w -s' -o dsserver
+         cp dsserver ../
+        env:
+          GOOS: windows
+          GOARCH: amd64
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: server-win
           path: ./dsserver
