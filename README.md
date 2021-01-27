@@ -10,7 +10,7 @@
 ![server](https://alexneo.net/server.jpg "server")       
 
 ### :star: Client (JAVA)
-    To run the client: "java Client [Host IP] [Host Port]"
+    To run the client: "java Client [Server IP] [Server Port]"
      
 ![client](https://alexneo.net/client.jpg "client")  
         
