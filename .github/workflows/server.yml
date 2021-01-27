@@ -20,8 +20,11 @@ jobs:
         run: |
          cd server
          go mod download
-         go build -o dsserver
+         go build -ldflags '-w -s' -o dsserver
          cp dsserver ../
+        env:
+          GOOS: linux
+          GOARCH: amd64
      
       # Upload as artifact
       - uses: actions/upload-artifact@v2
