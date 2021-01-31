@@ -1,0 +1,92 @@
+# Generate binary
+
+name: GoLang Server CI
+
+# Run on PR, commit or manually
+on:
+  push:
+    paths:
+      - '**.go'
+      - 'server/**'
+  pull_request:
+    paths:
+      - '**.go'
+      - 'server/**'
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    name: Generate Linux Go Binary File
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+
+      - name: Build Go server file
+        run: |
+         cd server
+         go mod download
+         go build -ldflags '-w -s' -o dsserver
+         cp dsserver ../
+        env:
+          GOOS: linux
+          GOARCH: amd64
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: server-linux
+          path: ./dsserver
+  build-mac:
+    runs-on: ubuntu-latest
+    name: Generate MacOS Go Binary File
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+
+      - name: Build Go server file
+        run: |
+         cd server
+         go mod download
+         go build -ldflags '-w -s' -o dsserver
+         cp dsserver ../
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: server-macos
+          path: ./dsserver
+  build-win:
+    runs-on: ubuntu-latest
+    name: Generate Windows Go Binary File
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+
+      - name: Build Go server file
+        run: |
+         cd server
+         go mod download
+         go build -ldflags '-w -s' -o dsserver
+         cp dsserver ../
+        env:
+          GOOS: windows
+          GOARCH: amd64
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: server-win
+          path: ./dsserver
