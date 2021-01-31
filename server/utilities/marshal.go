@@ -1,7 +1,6 @@
 package utilities
 
-import (
-)
+import ()
 
 func Marshal(rep Reply) ([]byte,error){
 

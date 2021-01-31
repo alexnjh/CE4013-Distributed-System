@@ -4,6 +4,7 @@ import (
   "net"
   "time"
   "flag"
+  "server/booking"
   log "github.com/sirupsen/logrus"
   util "server/utilities"
 )
@@ -55,11 +56,11 @@ func main(){
       log.Infof("Facility: %s",req.Name)
       log.Infof("[DateList]")
 
-      dateranges := make([]util.DateRange,len(req.Dates))
+      dateranges := make([]booking.DateRange,len(req.Dates))
 
       for idx , v := range req.Dates {
           log.Infof("%d) %d/%d/%d",idx+1,v.Day,v.Hour,v.Minute)
-          dateranges[idx] = util.DateRange{
+          dateranges[idx] = booking.DateRange{
             Start: v,
             End: v,
           }

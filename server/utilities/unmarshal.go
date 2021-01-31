@@ -2,6 +2,7 @@ package utilities
 
 import (
   "errors"
+  "server/booking"
 )
 
 func Unmarshal(data []byte) (Request, error){
@@ -16,11 +17,11 @@ func Unmarshal(data []byte) (Request, error){
   reqType := string(data[1:lenOfType+1])
   fctName := string(data[lenOfType+2:lenOfType+lenOfName+2])
 
-  arr := make([]Date, 0)
+  arr := make([]booking.Date, 0)
 
   for i := lenOfType+lenOfName+2; i < len(data); i=i+3 {
-    temp := Date{
-      Day: Day(int(data[i])),
+    temp := booking.Date{
+      Day: booking.Day(int(data[i])),
       Hour: int(data[i+1]),
       Minute: int(data[i+2]),
     }
