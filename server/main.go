@@ -1,95 +1,60 @@
 package main
 
 import (
-  "net"
-  "time"
-  "flag"
+  "fmt"
+  "server/facility"
   "server/booking"
-  log "github.com/sirupsen/logrus"
-  util "server/utilities"
-)
-
-const(
-  maxBufferSize   = 1024
 )
 
 func main(){
 
-  addrPtr := flag.String("a", "127.0.0.1:2222", "Address to listen to")
-  flag.Parse()
-
-  // Same as using net.ResolveUDPAddr and netListenUDP
-	uconn, err := net.ListenPacket("udp", *addrPtr)
-	if err != nil {
-    log.Fatalf(err.Error())
-	}
-
-  defer uconn.Close()
-
-  doneCh := make(chan error, 1)
-  buffer := make([]byte, maxBufferSize)
-
-  go func() {
-    for {
-      n, addr, err := uconn.ReadFrom(buffer)
-      if err != nil {
-        doneCh <- err
-        return
-      }
-
-      log.Infof("Packet-Received: bytes=%d from=%s\n",n, addr.String())
-
-      // Unmarshal Request
-      req, err := util.Unmarshal(buffer[:n])
-
-      if err != nil {
-        log.Fatalf(err.Error())
-      }
-
-      deadline := time.Now().Add(10*time.Second)
-      err = uconn.SetWriteDeadline(deadline)
-      if err != nil {
-        doneCh <- err
-        return
-      }
-
-      log.Infof("Facility: %s",req.Name)
-      log.Infof("[DateList]")
-
-      dateranges := make([]booking.DateRange,len(req.Dates))
-
-      for idx , v := range req.Dates {
-          log.Infof("%d) %d/%d/%d",idx+1,v.Day,v.Hour,v.Minute)
-          dateranges[idx] = booking.DateRange{
-            Start: v,
-            End: v,
-          }
-      }
-
-      rep := util.Reply{
-        Type: "Reply",
-        DateRanges: dateranges,
-      }
-
-      // Marshal Reply
-      data, err := util.Marshal(rep)
-
-      // Write the packet's contents back to the client.
-      n, err = uconn.WriteTo(data, addr)
-      if err != nil {
-        doneCh <- err
-        return
-      }
-
-      log.Infof("Packet-Written: bytes=%d to=%s\n", n, addr.String())
-    }
-  }()
-
-  log.Infof("Listening on UDP at %s\n",*addrPtr)
-
-  if err := <-doneCh; err != nil {
-    log.Infof("error: %s\n", err.Error())
-    return
+  listofDayNames := []string{
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
   }
 
+  listOfFac := []facility.Facility{"Meeting Room A", "Meeting Room B", "Meeting Room C"}
+
+  bm := booking.NewGenericBookingManager()
+
+  bm.AddBooking("Alex",booking.Date{booking.Monday,0,0},booking.Date{booking.Monday,23,59},listOfFac[0])
+  bm.AddBooking("Alex",booking.Date{booking.Monday,15,0},booking.Date{booking.Monday,22,59},listOfFac[1])
+  bm.AddBooking("Alex",booking.Date{booking.Monday,2,0},booking.Date{booking.Monday,4,30},listOfFac[1])
+  bm.AddBooking("Alex",booking.Date{booking.Sunday,10,0},booking.Date{booking.Sunday,23,59},listOfFac[0])
+  bm.AddBooking("Alex",booking.Date{booking.Tuesday,15,0},booking.Date{booking.Tuesday,22,9},listOfFac[1])
+  bm.AddBooking("Alex",booking.Date{booking.Monday,2,0},booking.Date{booking.Monday,6,20},listOfFac[1])
+
+  for _, f := range(listOfFac){
+    list := bm.GetAvailableDates(f,booking.Monday, booking.Sunday)
+    fmt.Printf("Facility Name: %s\n-------------------------\n", f)
+    for _, a := range(list){
+      if len(a) != 0{
+        fmt.Printf("[%s]\n", listofDayNames[a[0].Start.Day])
+      }
+      for _, v := range(a){
+        fmt.Printf("%s => %s\n", v.Start.String(), v.End.String())
+      }
+    }
+    fmt.Printf("\n")
+  }
+
+
+
+
+
+}
+
+func DoesFacilityExist(list []facility.Facility, fac facility.Facility) bool{
+  for _, v := range(list){
+    if v == fac {
+      return true
+    }
+  }
+
+  return false
 }
