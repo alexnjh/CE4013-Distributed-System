@@ -2,8 +2,8 @@ package main
 
 import (
   "fmt"
-  "server/facility"
   "server/booking"
+  "server/facility"
 )
 
 func main(){
@@ -63,6 +63,15 @@ func main(){
   }
   fmt.Println(err.Error())
 
+  fmt.Println("Validate Monitor state")
+  mm := booking.GetManager()
+  mm.PrintMonitoring()
+  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 2000, listOfFac[1])
+  mm.PrintMonitoring()
+  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65536}, 2000, listOfFac[0])
+  mm.PrintMonitoring()
+  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 3000, listOfFac[1])
+  mm.PrintMonitoring()
 
 }
 

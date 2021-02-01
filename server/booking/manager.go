@@ -1,11 +1,11 @@
 package booking
 
-import(
-  "fmt"
+import (
   "errors"
-  "sort"
+  "fmt"
   "math"
   "server/facility"
+  "sort"
 )
 
 type BookingManager struct{
@@ -138,6 +138,8 @@ func (b *BookingManager) AddBooking(
 
   sortBooking(b, start)
 
+  GetManager().Broadcast(f, CreateBooking, b)
+
   return &obj,nil
 
 }
@@ -228,6 +230,7 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
   booking.End = *e
 
   sortBooking(b, booking.Start)
+  GetManager().Broadcast(booking.Fac, UpdateBooking, b)
 
   return nil
 
@@ -235,9 +238,9 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
 func (b *BookingManager) RemoveBooking(d Day, id string) error{
 
-
   for idx, v := range b.BookingList[d] {
     if v.ConfirmationID == id {
+      GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
       b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d],idx)
     }
   }
