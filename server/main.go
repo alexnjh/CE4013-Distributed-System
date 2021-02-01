@@ -22,15 +22,39 @@ func main(){
 
   bm := booking.NewGenericBookingManager()
 
-  bm.AddBooking("Alex",booking.Date{booking.Monday,0,0},booking.Date{booking.Monday,23,59},listOfFac[0])
-  bm.AddBooking("Alex",booking.Date{booking.Monday,15,0},booking.Date{booking.Monday,22,59},listOfFac[1])
-  bm.AddBooking("Alex",booking.Date{booking.Monday,2,0},booking.Date{booking.Monday,4,30},listOfFac[1])
-  bm.AddBooking("Alex",booking.Date{booking.Sunday,10,0},booking.Date{booking.Sunday,23,59},listOfFac[0])
-  bm.AddBooking("Alex",booking.Date{booking.Tuesday,15,0},booking.Date{booking.Tuesday,22,9},listOfFac[1])
-  bm.AddBooking("Alex",booking.Date{booking.Monday,2,0},booking.Date{booking.Monday,6,20},listOfFac[1])
+  obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
 
+  if err != nil {
+    fmt.Printf("%s\n",err.Error())
+    return
+  }
+
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
+  // negative numbers means move forward while positive numbers indicate postpone
+  err = bm.UpdateBooking(obj.ConfirmationID, 180)
+
+  if err != nil {
+    fmt.Printf("%s\n",err.Error())
+    return
+  }
+
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
+
+}
+
+func PrintListOfAvailableDates(listofDayNames []string, listOfFac []facility.Facility, bm *booking.BookingManager){
   for _, f := range(listOfFac){
-    list := bm.GetAvailableDates(f,booking.Monday, booking.Sunday)
+    list := bm.GetAvailableDates(f,
+      booking.Monday,
+      booking.Tuesday,
+      booking.Wednesday,
+      booking.Thursday,
+      booking.Friday,
+      booking.Saturday,
+      booking.Sunday,
+    )
     fmt.Printf("Facility Name: %s\n-------------------------\n", f)
     for _, a := range(list){
       if len(a) != 0{
@@ -42,11 +66,6 @@ func main(){
     }
     fmt.Printf("\n")
   }
-
-
-
-
-
 }
 
 func DoesFacilityExist(list []facility.Facility, fac facility.Facility) bool{
