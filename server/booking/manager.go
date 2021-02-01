@@ -99,7 +99,7 @@ func (b *BookingManager) getBooking(id string) (*Booking,error){
       }
   }
 
-  return nil, errors.New("No booking found for specified ID")
+  return nil, errors.New("Invalid booking ID")
 
 }
 
@@ -160,7 +160,7 @@ func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking,bool){
   return nil,false
 }
 
-func (b *BookingManager) UpdateBooking(id string, offset int) error{
+func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
   booking, err := b.getBooking(id)
 

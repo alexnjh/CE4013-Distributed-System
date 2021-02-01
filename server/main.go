@@ -22,6 +22,9 @@ func main(){
 
   bm := booking.NewGenericBookingManager()
 
+  println("[INFO] System Start")
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
   obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
 
   if err != nil {
@@ -29,6 +32,7 @@ func main(){
     return
   }
 
+  println("[INFO] System After Add")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
   // negative numbers means move forward while positive numbers indicate postpone
@@ -39,6 +43,7 @@ func main(){
     return
   }
 
+  println("[INFO] System After Update")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
 
