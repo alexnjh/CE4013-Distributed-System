@@ -46,6 +46,23 @@ func main(){
   println("[INFO] System After Update")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
+  // Expect error handling
+  err = bm.UpdateBooking(obj.ConfirmationID + "err", 180) // Error confirmation ID
+  if err == nil {
+    panic("We have an error checking error for confirmation ID")
+  }
+  fmt.Println(err.Error())
+  err = bm.UpdateBooking(obj.ConfirmationID, 18000000000) // Error different day
+  if err == nil {
+    panic("Error checking different day")
+  }
+  fmt.Println(err.Error())
+  err = bm.UpdateBooking(obj.ConfirmationID, -18000000000) // Error different day
+  if err == nil {
+    panic("Error checking different day")
+  }
+  fmt.Println(err.Error())
+
 
 }
 

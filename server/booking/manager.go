@@ -136,15 +136,19 @@ func (b *BookingManager) AddBooking(
   // Append works on nil slices.
   b.BookingList[start.Day] = append(b.BookingList[start.Day], &obj)
 
-  // Sort in descending order
-  sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
-
-      return b.BookingList[start.Day][i].End.LessThan(b.BookingList[start.Day][j].Start)
-
-  })
+  sortBooking(b, start)
 
   return &obj,nil
 
+}
+
+func sortBooking(b *BookingManager, start Date) {
+  // Sort in descending order
+  sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
+
+    return b.BookingList[start.Day][i].End.LessThan(b.BookingList[start.Day][j].Start)
+
+  })
 }
 
 func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking,bool){
@@ -160,6 +164,7 @@ func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking,bool){
   return nil,false
 }
 
+// Nil error = successful
 func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
   booking, err := b.getBooking(id)
@@ -169,6 +174,9 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
   }
 
   offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
+  if offsetDate.Hour > 24 {
+    return errors.New("Bookings cannot be updated to another day")
+  }
 
   var s,e *Date
 
@@ -218,6 +226,8 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
   booking.Start = *s
   booking.End = *e
+
+  sortBooking(b, booking.Start)
 
   return nil
 
