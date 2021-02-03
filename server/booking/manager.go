@@ -176,7 +176,7 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
   }
 
   offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
-  if offsetDate.Hour > 24 {
+  if offsetDate.Hour > 24 && offsetDate.Hour < 0 {
     return errors.New("Bookings cannot be updated to another day")
   }
 
