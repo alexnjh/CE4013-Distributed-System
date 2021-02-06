@@ -1,3 +1,4 @@
 /server/main
 /server/server
 /server/debug
+*.class

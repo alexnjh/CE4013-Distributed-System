@@ -1,11 +1,11 @@
 package booking
 
-import(
-  "fmt"
+import (
   "errors"
-  "sort"
+  "fmt"
   "math"
   "server/facility"
+  "sort"
 )
 
 type BookingManager struct{
@@ -99,7 +99,7 @@ func (b *BookingManager) getBooking(id string) (*Booking,error){
       }
   }
 
-  return nil, errors.New("No booking found for specified ID")
+  return nil, errors.New("Invalid booking ID")
 
 }
 
@@ -136,15 +136,21 @@ func (b *BookingManager) AddBooking(
   // Append works on nil slices.
   b.BookingList[start.Day] = append(b.BookingList[start.Day], &obj)
 
-  // Sort in descending order
-  sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
+  sortBooking(b, start)
 
-      return b.BookingList[start.Day][i].End.LessThan(b.BookingList[start.Day][j].Start)
-
-  })
+  GetManager().Broadcast(f, CreateBooking, b)
 
   return &obj,nil
 
+}
+
+func sortBooking(b *BookingManager, start Date) {
+  // Sort in descending order
+  sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
+
+    return b.BookingList[start.Day][i].End.LessThan(b.BookingList[start.Day][j].Start)
+
+  })
 }
 
 func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking,bool){
@@ -160,7 +166,8 @@ func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking,bool){
   return nil,false
 }
 
-func (b *BookingManager) UpdateBooking(id string, offset int) error{
+// Nil error = successful
+func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
   booking, err := b.getBooking(id)
 
@@ -169,6 +176,9 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error{
   }
 
   offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
+  if offsetDate.Hour > 24 && offsetDate.Hour < 0 {
+    return errors.New("Bookings cannot be updated to another day")
+  }
 
   var s,e *Date
 
@@ -219,15 +229,18 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error{
   booking.Start = *s
   booking.End = *e
 
+  sortBooking(b, booking.Start)
+  GetManager().Broadcast(booking.Fac, UpdateBooking, b)
+
   return nil
 
 }
 
 func (b *BookingManager) RemoveBooking(d Day, id string) error{
 
-
   for idx, v := range b.BookingList[d] {
     if v.ConfirmationID == id {
+      GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
       b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d],idx)
     }
   }

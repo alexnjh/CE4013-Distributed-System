@@ -2,8 +2,8 @@ package main
 
 import (
   "fmt"
-  "server/facility"
   "server/booking"
+  "server/facility"
 )
 
 func main(){
@@ -22,6 +22,9 @@ func main(){
 
   bm := booking.NewGenericBookingManager()
 
+  println("[INFO] System Start")
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
   obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
 
   if err != nil {
@@ -29,6 +32,7 @@ func main(){
     return
   }
 
+  println("[INFO] System After Add")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
   // negative numbers means move forward while positive numbers indicate postpone
@@ -39,8 +43,35 @@ func main(){
     return
   }
 
+  println("[INFO] System After Update")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
+  // Expect error handling
+  err = bm.UpdateBooking(obj.ConfirmationID + "err", 180) // Error confirmation ID
+  if err == nil {
+    panic("We have an error checking error for confirmation ID")
+  }
+  fmt.Println(err.Error())
+  err = bm.UpdateBooking(obj.ConfirmationID, 18000000000) // Error different day
+  if err == nil {
+    panic("Error checking different day")
+  }
+  fmt.Println(err.Error())
+  err = bm.UpdateBooking(obj.ConfirmationID, -18000000000) // Error different day
+  if err == nil {
+    panic("Error checking different day")
+  }
+  fmt.Println(err.Error())
+
+  fmt.Println("Validate Monitor state")
+  mm := booking.GetManager()
+  mm.PrintMonitoring()
+  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 2000, listOfFac[1])
+  mm.PrintMonitoring()
+  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65536}, 2000, listOfFac[0])
+  mm.PrintMonitoring()
+  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 3000, listOfFac[1])
+  mm.PrintMonitoring()
 
 }
 

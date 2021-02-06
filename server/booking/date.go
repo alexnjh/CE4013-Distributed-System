@@ -56,7 +56,7 @@ func MinutesToDate(d Day,i int) Date{
 }
 
 func (d *Date) String() string{
-  return fmt.Sprintf("%d/%d/%d",d.Day,d.Hour,d.Minute);
+  return fmt.Sprintf("%d,%.2d:%.2d",d.Day,d.Hour,d.Minute)
 }
 
 func (d *Date) Equal(v Date) bool{
