@@ -4,6 +4,7 @@ import (
   "fmt"
   "server/booking"
   "server/facility"
+  errorMsg "server/errors"
 
   // Uncomment this if receiving messages from client
   // "server/messagesocket"
@@ -39,10 +40,13 @@ func main(){
   //
   // // Loop through channel to wait for messages
   // for msg := range msgCh {
-  //   fmt.Println(msg.Type)
-  //   fmt.Println(msg.Data)
+  //   if msg.Type == "Error" {
+  //     Unmarshal
+  //   }
   // }
 
+  x := errorMsg.New("This is a error!!")
+  fmt.Printf("%x\n",x.Marshal())
 
   bm := booking.NewGenericBookingManager()
 
