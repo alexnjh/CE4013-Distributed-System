@@ -4,11 +4,17 @@ import (
   "fmt"
   "server/booking"
   "server/facility"
+
+  // Uncomment this if receiving messages from client
+  // "server/messagesocket"
 )
 
-func main(){
+var (
 
-  listofDayNames := []string{
+  hostname = "127.0.0.1"
+  hostport = 2222
+
+  listofDayNames = []string{
     "MONDAY",
     "TUESDAY",
     "WEDNESDAY",
@@ -18,7 +24,25 @@ func main(){
     "SUNDAY",
   }
 
-  listOfFac := []facility.Facility{"Meeting Room A", "Meeting Room B", "Meeting Room C"}
+  listOfFac = []facility.Facility{
+    "Meeting Room A",
+    "Meeting Room B",
+    "Meeting Room C",
+  }
+
+)
+
+func main(){
+
+  // Uncomment this if receiving messages from client
+  // msgCh := messagesocket.NewMessageSocket(hostname,hostport)
+  //
+  // // Loop through channel to wait for messages
+  // for msg := range msgCh {
+  //   fmt.Println(msg.Type)
+  //   fmt.Println(msg.Data)
+  // }
+
 
   bm := booking.NewGenericBookingManager()
 
