@@ -35,18 +35,18 @@ var (
 
 func main(){
 
+  x := errorMsg.New("This is a error!!")
+  fmt.Printf("%x\n",x.Marshal())
+
   // Uncomment this if receiving messages from client
   // msgCh := messagesocket.NewMessageSocket(hostname,hostport)
   //
   // // Loop through channel to wait for messages
   // for msg := range msgCh {
   //   if msg.Type == "Error" {
-  //     Unmarshal
+  //     fmt.Println(string(msg.Data))
   //   }
   // }
-
-  x := errorMsg.New("This is a error!!")
-  fmt.Printf("%x\n",x.Marshal())
 
   bm := booking.NewGenericBookingManager()
 

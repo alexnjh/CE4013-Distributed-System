@@ -7,7 +7,8 @@ import (
 
 func CreateMessageErrorHeader(lengthOfPayload uint16) []byte {
 
-  s := "0000"+fmt.Sprintf("%04x", lengthOfPayload+7)+"084572726f720a"
+  typeString := "054572726f72"
+  s := "0000"+fmt.Sprintf("%04x", lengthOfPayload+uint16(len(typeString)/2))+typeString
   data, err := hex.DecodeString(s)
 
   if err != nil {
