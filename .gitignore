@@ -2,3 +2,5 @@
 /server/server
 /server/debug
 *.class
+client/.project
+client/.classpath
