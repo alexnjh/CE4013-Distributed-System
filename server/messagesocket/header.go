@@ -16,3 +16,15 @@ func CreateMessageErrorHeader(lengthOfPayload uint16) []byte {
 
   return data
 }
+
+func CreateFacilityAvailabilityQuery(dataLength uint16) []byte {
+  // Add 15 for type string length (1 byte), AddBooking string (12 bytes), Data String Length (2 bytes)
+  s := "0000"+fmt.Sprintf("%04x", dataLength+15)+"0c416464426f6f6b696e67"+fmt.Sprintf("%04x", dataLength)
+  data, err := hex.DecodeString(s)
+
+  if err != nil {
+    panic(err)
+  }
+
+  return data
+}

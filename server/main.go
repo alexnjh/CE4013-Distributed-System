@@ -2,6 +2,7 @@ package main
 
 import (
   "fmt"
+  "server/availability"
   "server/booking"
   "server/facility"
   errorMsg "server/errors"
@@ -100,6 +101,29 @@ func main(){
   mm.PrintMonitoring()
   mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 3000, listOfFac[1])
   mm.PrintMonitoring()
+
+  fmt.Println()
+  fmt.Println("Test Marshalling of Availability")
+  avail := availability.New("2_2,3-3,3")
+  fmt.Printf("Original: %+v\n", avail)
+  fmt.Printf("Marshalled: %x\n", avail.Marshal())
+  unmarshAvail, err := availability.Unmarshal(avail.Marshal()[17:])
+  if err != nil {
+    panic(err)
+  }
+  fmt.Printf("Unmarshalled: %+v\n", unmarshAvail)
+
+  fmt.Println()
+  fmt.Println("Test Marshalling of Availabilities")
+  availArr := availability.NewArray("2_2,3-3,3|3_2,3-4,3|1_3,3-4,3|4_2,3-4,3")
+  marshAvailArr := availability.ConvertArrayToBytes(availArr)
+  fmt.Printf("Original: %+v\n", availArr)
+  fmt.Printf("Marshalled: %x\n", marshAvailArr)
+  unmarshAvailArr, err := availability.ConvertBytesToArray(marshAvailArr[15:])
+  if err != nil {
+    panic(err)
+  }
+  fmt.Printf("Unmarshalled: %+v\n", unmarshAvailArr)
 
 }
 
