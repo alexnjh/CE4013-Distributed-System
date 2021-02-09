@@ -5,7 +5,7 @@ import (
   "encoding/hex"
 )
 
-func CreateMessageErrorHeader(lengthOfPayload uint16) []byte {
+func CreateErrorMessageHeader(lengthOfPayload uint16) []byte {
 
   typeString := "054572726f72"
   s := "0000"+fmt.Sprintf("%04x", lengthOfPayload+uint16(len(typeString)/2))+typeString

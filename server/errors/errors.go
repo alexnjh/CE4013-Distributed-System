@@ -5,30 +5,30 @@ import(
   "server/messagesocket"
 )
 
-type MessageError struct {
+type ErrorMessage struct {
   s string
 }
 
-func (e *MessageError) Error() string{
+func (e *ErrorMessage) Error() string{
   return e.s
 }
 
-func (e *MessageError) Marshal() []byte{
+func (e *ErrorMessage) Marshal() []byte{
 
   payload := []byte(e.s)
-  hdr := messagesocket.CreateMessageErrorHeader(uint16(len(payload)))
+  hdr := messagesocket.CreateErrorMessageHeader(uint16(len(payload)))
 
   return append(hdr,payload...)
 }
 
-func New(s string) MessageError{
-  return MessageError{
+func New(s string) ErrorMessage{
+  return ErrorMessage{
     s:s,
   }
 }
 
-func Unmarshal(data []byte) (MessageError,error){
-  return MessageError{
+func Unmarshal(data []byte) (ErrorMessage,error){
+  return ErrorMessage{
     s: string(data),
   },nil
 }
