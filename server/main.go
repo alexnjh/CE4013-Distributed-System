@@ -107,7 +107,7 @@ func main(){
   avail := availability.New("2_2,3-3,3")
   fmt.Printf("Original: %+v\n", avail)
   fmt.Printf("Marshalled: %x\n", avail.Marshal())
-  unmarshAvail, err := availability.Unmarshal(avail.Marshal()[17:])
+  unmarshAvail, err := availability.Unmarshal(avail.Marshal()[19:])
   if err != nil {
     panic(err)
   }
@@ -119,7 +119,7 @@ func main(){
   marshAvailArr := availability.ConvertArrayToBytes(availArr)
   fmt.Printf("Original: %+v\n", availArr)
   fmt.Printf("Marshalled: %x\n", marshAvailArr)
-  unmarshAvailArr, err := availability.ConvertBytesToArray(marshAvailArr[15:])
+  unmarshAvailArr, err := availability.ConvertBytesToArray(marshAvailArr[17:])
   if err != nil {
     panic(err)
   }
