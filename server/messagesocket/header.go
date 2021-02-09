@@ -31,8 +31,8 @@ func CreateQueryFactilityAvailabilityHeader(dataLength uint16) []byte {
 }
 
 func CreateAddBookingHeader(dataLength uint16) []byte {
-  // Add 13 for type string length (1 byte), AddBooking string (10 bytes), Data String Length (2 bytes)
-  s := "0000"+fmt.Sprintf("%04x", dataLength+13)+"07416464426f6f6b696e67"+fmt.Sprintf("%04x", dataLength)
+  // Add 11 for type string length (1 byte), AddBooking string (10 bytes)
+  s := "0000"+fmt.Sprintf("%04x", dataLength+13)+"07416464426f6f6b696e67"
   data, err := hex.DecodeString(s)
 
   if err != nil {

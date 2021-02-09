@@ -131,8 +131,8 @@ func main(){
   marshedTb := tb.Marshal()
   fmt.Printf("Original: %+v\n", tb)
   fmt.Printf("Marshalled (w Header): %x\n", marshedTb)
-  fmt.Printf("Marshalled (w/o Header): %x\n", marshedTb[17:])
-  unmarshedTb := booking.Unmarshal(marshedTb[17:])
+  fmt.Printf("Marshalled (w/o Header): %x\n", marshedTb[15:])
+  unmarshedTb := booking.Unmarshal(marshedTb[15:])
   fmt.Printf("Unmarshalled: %+v\n", &unmarshedTb)
   // 19
 
