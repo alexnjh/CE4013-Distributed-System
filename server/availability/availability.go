@@ -120,7 +120,6 @@ func ConvertBytesToArray(data []byte) ([]Availability, error) {
 	// First 2 bytes are length of array
 	d := data[0:2]
 	dataLen :=  uint16(d[1]) | uint16(d[0])<<8
-	fmt.Printf("Data Length: %d\n", dataLen)
 
 	msg := data[2:]
 

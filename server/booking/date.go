@@ -3,6 +3,8 @@ package booking
 import(
   "fmt"
   "errors"
+  "strconv"
+  "strings"
 )
 
 type Day int
@@ -55,7 +57,23 @@ func MinutesToDate(d Day,i int) Date{
   }
 }
 
+func FromString(str string) Date {
+  daySplit := strings.Split(str, ",")
+  timeSplit := strings.Split(daySplit[1], ":")
+
+  day, _ := strconv.Atoi(daySplit[0])
+  hour, _ := strconv.Atoi(timeSplit[0])
+  min, _ := strconv.Atoi(timeSplit[1])
+
+  return Date{
+    Day: Day(day),
+    Hour: hour,
+    Minute: min,
+  }
+}
+
 func (d *Date) String() string{
+  // Always 7 bytes
   return fmt.Sprintf("%d,%.2d:%.2d",d.Day,d.Hour,d.Minute)
 }
 

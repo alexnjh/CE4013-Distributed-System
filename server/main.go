@@ -125,6 +125,17 @@ func main(){
   }
   fmt.Printf("Unmarshalled: %+v\n", unmarshAvailArr)
 
+  fmt.Println()
+  fmt.Println("Test Marshalling of Booking")
+  tb, err := bm.AddBooking("Alex",booking.Date{booking.Thursday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
+  marshedTb := tb.Marshal()
+  fmt.Printf("Original: %+v\n", tb)
+  fmt.Printf("Marshalled (w Header): %x\n", marshedTb)
+  fmt.Printf("Marshalled (w/o Header): %x\n", marshedTb[17:])
+  unmarshedTb := booking.Unmarshal(marshedTb[17:])
+  fmt.Printf("Unmarshalled: %+v\n", &unmarshedTb)
+  // 19
+
 }
 
 func PrintListOfAvailableDates(listofDayNames []string, listOfFac []facility.Facility, bm *booking.BookingManager){
