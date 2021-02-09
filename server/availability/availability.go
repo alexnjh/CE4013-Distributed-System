@@ -24,7 +24,7 @@ func (a *Availability) ToString() string{
 func (a *Availability) Marshal() []byte{
 
 	payload := []byte(a.ToString()) // 9 bytes
-	hdr := messagesocket.CreateFacilityAvailabilityQuery(uint16(len(payload)))
+	hdr := messagesocket.CreateFacilityAvailabilityQueryHeader(uint16(len(payload)))
 
 	return append(hdr,payload...)
 }
@@ -108,7 +108,7 @@ func ConvertArrayToBytes(avail []Availability) []byte {
 	str := ConvertArrayToString(avail)
 
 	payload := []byte(str) // x*10 + 9 bytes, where x is array size - 1
-	hdr := messagesocket.CreateFacilityAvailabilityQuery(uint16(len(payload)))
+	hdr := messagesocket.CreateFacilityAvailabilityQueryHeader(uint16(len(payload)))
 	return append(hdr,payload...)
 }
 
