@@ -63,6 +63,7 @@ jobs:
   
   build-macos:
     runs-on: macos-latest
+    if: github.event_name == 'workflow_dispatch'
     name: Generate Client (MacOS)
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
