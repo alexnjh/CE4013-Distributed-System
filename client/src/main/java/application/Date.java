@@ -1,15 +1,17 @@
+package application;
 
 public class Date {
 	private Day day;
 	private int hour;
 	private int minute;
 	
+		
 	Date(Day day, int hour, int min){
 		this.day = day;
 		this.hour = hour;
 		this.minute = min;
 	}
-	
+
 	public Day getDay() {
 		return day;
 	}

@@ -1,3 +1,5 @@
+package application;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 

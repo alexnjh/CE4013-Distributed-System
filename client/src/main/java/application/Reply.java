@@ -1,4 +1,4 @@
-
+package application;
 public class Reply {
 	
 	private String type;
