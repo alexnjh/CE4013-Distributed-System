@@ -2,6 +2,7 @@ package availability
 
 import (
 	"fmt"
+	"server/facility"
 	"server/messagesocket"
 	"strconv"
 	"strings"
@@ -15,6 +16,12 @@ type Availability struct {
 	EndHour uint8
 	StartMin uint8
 	EndMin uint8
+}
+
+// Facility Length (1 byte), Facility String (x bytes), CSV of Days
+type AvailabilityRequest struct {
+	Facility facility.Facility
+	Days string
 }
 
 func (a *Availability) ToString() string{

@@ -38,6 +38,8 @@ func (b *Booking) Marshal() []byte {
   return append(hdr, payload...)
 }
 
+// TODO: Remove confirmation ID
+// TODO: Client send booking info (w/o cfm id), Server send back cfm id
 func Unmarshal(data []byte) Booking {
   index := 0
   // Booker Name
