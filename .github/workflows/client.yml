@@ -3,7 +3,16 @@
 name: Java Client CI
 
 # Run on PR, commit or manually
-on: [push,pull_request,workflow_dispatch]
+on:
+  push:
+    paths:
+      - '**.java'
+      - 'client/**'
+  pull_request:
+    paths:
+      - '**.java'
+      - 'client/**'
+  workflow_dispatch:
 
 jobs:
   build-linux:
@@ -49,7 +58,7 @@ jobs:
       # Upload as artifact
       - uses: actions/upload-artifact@v2
         with:
-          name: client
+          name: client-linux
           path: ./package
   
   build-macos:
@@ -94,7 +103,7 @@ jobs:
       # Upload as artifact
       - uses: actions/upload-artifact@v2
         with:
-          name: client
+          name: client-macos
           path: ./package
 
   build-win:
@@ -139,5 +148,5 @@ jobs:
       # Upload as artifact
       - uses: actions/upload-artifact@v2
         with:
-          name: client
+          name: client-win
           path: ./package
