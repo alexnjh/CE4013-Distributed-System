@@ -4,3 +4,5 @@
 *.class
 client/.project
 client/.classpath
+client/.gradle
+client/build
