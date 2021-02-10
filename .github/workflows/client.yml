@@ -1,0 +1,40 @@
+# Generate binary
+
+name: Java Client CI
+
+# Run on PR, commit or manually
+on: [push,pull_request,workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Generate Client
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Java environment
+        uses: actions/setup-java@v1.4.3
+
+      - name: Move files out to respective place
+        run: |
+         cd client
+         mkdir -p src/main/java
+         mv src/application src/main/java
+         mv gradleystuff/module-info.java src/main/java/
+         mv gradleystuff/* .
+         chmod +x gradlew
+
+      - name: Generate package
+        run: |
+         cd client
+         ./gradlew jpackage
+         cd ..
+         mkdir -p package
+         mv client/build/jpackage/* package/
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: client
+          path: ./package
