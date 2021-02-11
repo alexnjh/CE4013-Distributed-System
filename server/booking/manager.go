@@ -221,7 +221,7 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
   }
 
   cbk, status := b.CheckForConflict(&obj)
-  
+
   if status {
     return errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]",s.String(),e.String(),cbk.Start.String(),cbk.End.String()))
   }
@@ -236,17 +236,82 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
 }
 
-func (b *BookingManager) RemoveBooking(d Day, id string) error{
+func (b *BookingManager) UpdateBookingDuration(id string, offset int) error{
 
-  for idx, v := range b.BookingList[d] {
-    if v.ConfirmationID == id {
-      GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
-      b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d],idx)
+  booking, err := b.getBooking(id)
+
+  if err != nil {
+    return err
+  }
+
+  offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
+  if offsetDate.Hour > 24 || offsetDate.Hour < 0 {
+    return errors.New("bookings cannot be updated to another day")
+  }
+
+  var s,e *Date
+
+  if math.Signbit(float64(offset)) {
+
+    e, err = booking.End.Minus(offsetDate)
+
+    if err != nil {
+      return err
+    }
+
+  }else{
+
+    e, err = booking.End.Plus(offsetDate)
+
+    if err != nil {
+      return err
     }
   }
+
+  // If start is not less than end this duration cannot be used
+  if !booking.Start.LessThan(*e){
+    return errors.New("Start time is not less than End time")
+  }
+
+  // Create booking object to check for conflict
+  obj := Booking{
+    BookerName: booking.BookerName,
+    ConfirmationID: booking.ConfirmationID,
+    Start: booking.Start,
+    End: *e,
+    Fac: booking.Fac,
+  }
+
+  cbk, status := b.CheckForConflict(&obj)
+
+  if status {
+    return errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]",s.String(),e.String(),cbk.Start.String(),cbk.End.String()))
+  }
+
+  booking.End = *e
+
+  sortBooking(b, booking.Start)
 
   // Sorting is not necessary here as the array was sorted in the first place
 
   return nil
+
+}
+
+func (b *BookingManager) RemoveBooking(id string) error{
+
+  for _, x := range b.BookingList {
+    for idx, v := range x {
+      if v.ConfirmationID == id {
+        d:=v.Start.Day
+        GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
+        b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d],idx)
+        return nil
+      }
+    }
+  }
+
+  // Sorting is not necessary here as the array was sorted in the first place
+  return errors.New("Invalid booking ID")
 
 }

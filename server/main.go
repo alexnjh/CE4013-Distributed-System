@@ -54,7 +54,7 @@ func main(){
   println("[INFO] System Start")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
-  obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
+  obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,0},listOfFac[1])
 
   if err != nil {
     fmt.Printf("%s\n",err.Error())
@@ -75,6 +75,28 @@ func main(){
   println("[INFO] System After Update")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
+  // negative numbers means move forward while positive numbers indicate postpone
+  err = bm.UpdateBookingDuration(obj.ConfirmationID, 180)
+
+  if err != nil {
+    fmt.Printf("%s\n",err.Error())
+    return
+  }
+
+  println("[INFO] System After Update Duration")
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
+  // negative numbers means move forward while positive numbers indicate postpone
+  err = bm.RemoveBooking(obj.ConfirmationID)
+
+  if err != nil {
+    fmt.Printf("%s\n",err.Error())
+    return
+  }
+
+  println("[INFO] System After Remove")
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
   // Expect error handling
   err = bm.UpdateBooking(obj.ConfirmationID + "err", 180) // Error confirmation ID
   if err == nil {
@@ -87,6 +109,11 @@ func main(){
   }
   fmt.Println(err.Error())
   err = bm.UpdateBooking(obj.ConfirmationID, -18000000000) // Error different day
+  if err == nil {
+    panic("Error checking different day")
+  }
+  fmt.Println(err.Error())
+  err = bm.UpdateBookingDuration(obj.ConfirmationID, -600) // Error different day
   if err == nil {
     panic("Error checking different day")
   }
