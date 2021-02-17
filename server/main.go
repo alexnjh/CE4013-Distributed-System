@@ -39,13 +39,14 @@ func main(){
   x := errorMsg.New("This is a error!!")
   fmt.Printf("%x\n",x.Marshal())
 
-  // Uncomment this if receiving messages from client
+  //Uncomment this if receiving messages from client
   // msgCh := messagesocket.NewMessageSocket(hostname,hostport)
   //
   // // Loop through channel to wait for messages
   // for msg := range msgCh {
   //   if msg.Type == "Error" {
-  //     fmt.Println(string(msg.Data))
+  //     fmt.Println(string(msg.Data)) // Print message data
+  //     msg.Reply(x.Marshal()) // Reply to sender of message
   //   }
   // }
 
@@ -86,7 +87,7 @@ func main(){
   println("[INFO] System After Update Duration")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
-  // negative numbers means move forward while positive numbers indicate postpone
+  // Delete booking
   err = bm.RemoveBooking(obj.ConfirmationID)
 
   if err != nil {

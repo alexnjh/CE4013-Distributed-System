@@ -27,9 +27,25 @@ const(
 )
 
 type Message struct{
-  Type string
-  Data []byte
+  addr  net.Addr
+  uconn net.PacketConn
+  Type  string
+  Data  []byte
 }
+
+func (m *Message) Reply(data []byte) error {
+
+  // Write the packet's contents back to the client.
+  n, err := m.uconn.WriteTo(data, m.addr)
+  if err != nil {
+    return err
+  }
+
+  fmt.Printf("packet-written: bytes=%d\n", n)
+
+  return nil
+}
+
 
 // Returns a channel that can be used for collecting all unpacked UDP messages.
 func NewMessageSocket(host string, port int) <-chan Message{
@@ -123,11 +139,14 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
         // Unpack header from message
         message, err := unpack(data1)
+        message.addr = addr
+        message.uconn = uconn
+
+
         if err != nil {
           // Should not happen as it is not added in yet
           log.Errorf("Failed to unpack message header")
           continue
-
         }else{
             msg <- message
         }
@@ -138,11 +157,8 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
     }
   }(msgCh)
-
   return msgCh
-
 }
-
 
 // Check if a message is valid by checking
 // 1. The preamble should be [00 00 00 00]
