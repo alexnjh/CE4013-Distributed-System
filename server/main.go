@@ -5,10 +5,8 @@ import (
   "server/availability"
   "server/booking"
   "server/facility"
+  "server/messagesocket"
   errorMsg "server/errors"
-
-  // Uncomment this if receiving messages from client
-  // "server/messagesocket"
 )
 
 var (
@@ -32,6 +30,8 @@ var (
     "Meeting Room C",
   }
 
+  list []messagesocket.Message
+
 )
 
 func main(){
@@ -45,8 +45,9 @@ func main(){
   // // Loop through channel to wait for messages
   // for msg := range msgCh {
   //   if msg.Type == "Error" {
+  //     BroadcastUsingMsgList(msg.Data,list)
   //     fmt.Println(string(msg.Data)) // Print message data
-  //     msg.Reply(x.Marshal()) // Reply to sender of message
+  //     list = append(list,msg) // Add to list of clients to inform
   //   }
   // }
 
@@ -198,4 +199,12 @@ func DoesFacilityExist(list []facility.Facility, fac facility.Facility) bool{
   }
 
   return false
+}
+
+// @kenneth You can use this as a way to update the client when a client send a monitor message
+func BroadcastUsingMsgList(data []byte, list []messagesocket.Message){
+  for _, a := range(list){
+    fmt.Printf("Broacasting update to: %s\n", a.Addr.String())
+    a.Reply(data)
+  }
 }

@@ -16,6 +16,7 @@ import (
   "net"
   "fmt"
   "time"
+  "bytes"
   "errors"
   "encoding/binary"
   log "github.com/sirupsen/logrus"
@@ -27,16 +28,17 @@ const(
 )
 
 type Message struct{
-  addr  net.Addr
+  Addr  net.Addr
   uconn net.PacketConn
   Type  string
   Data  []byte
 }
 
+// Reply to the client that send the message
 func (m *Message) Reply(data []byte) error {
 
   // Write the packet's contents back to the client.
-  n, err := m.uconn.WriteTo(data, m.addr)
+  n, err := m.uconn.WriteTo(data, m.Addr)
   if err != nil {
     return err
   }
@@ -44,6 +46,18 @@ func (m *Message) Reply(data []byte) error {
   fmt.Printf("packet-written: bytes=%d\n", n)
 
   return nil
+}
+
+
+// Check if two messages are equal
+func (m *Message) Equal(a *Message) bool{
+  if m.Addr.String() == a.Addr.String() &&
+  m.Type == a.Type &&
+  bytes.Compare(m.Data, a.Data) == 0{
+    return true
+  }else{
+    return false
+  }
 }
 
 
@@ -139,7 +153,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
         // Unpack header from message
         message, err := unpack(data1)
-        message.addr = addr
+        message.Addr = addr
         message.uconn = uconn
 
 
