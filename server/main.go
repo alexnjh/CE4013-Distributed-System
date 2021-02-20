@@ -2,6 +2,7 @@ package main
 
 import (
   "fmt"
+  "net"
   "server/availability"
   "server/booking"
   "server/facility"
@@ -124,11 +125,12 @@ func main(){
   fmt.Println("Validate Monitor state")
   mm := booking.GetManager()
   mm.PrintMonitoring()
-  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 2000, listOfFac[1])
+  addr, _ := net.ResolveUDPAddr("udp", "localhost") // Will probably crash here
+  mm.AddIP(messagesocket.Message{Addr: addr}, 2000, listOfFac[1])
   mm.PrintMonitoring()
-  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65536}, 2000, listOfFac[0])
+  mm.AddIP(messagesocket.Message{Addr: addr}, 2000, listOfFac[0])
   mm.PrintMonitoring()
-  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 3000, listOfFac[1])
+  mm.AddIP(messagesocket.Message{Addr: addr}, 3000, listOfFac[1])
   mm.PrintMonitoring()
 
   fmt.Println()
@@ -199,12 +201,4 @@ func DoesFacilityExist(list []facility.Facility, fac facility.Facility) bool{
   }
 
   return false
-}
-
-// @kenneth You can use this as a way to update the client when a client send a monitor message
-func BroadcastUsingMsgList(data []byte, list []messagesocket.Message){
-  for _, a := range(list){
-    fmt.Printf("Broacasting update to: %s\n", a.Addr.String())
-    a.Reply(data)
-  }
 }
