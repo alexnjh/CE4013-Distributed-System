@@ -158,7 +158,7 @@ func main(){
 
   fmt.Println()
   fmt.Println("Test Marshalling of Booking")
-  tb, err := bm.AddBooking("Alex",booking.Date{booking.Thursday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
+  tb, err := bm.AddBooking("Alex",booking.Date{Day: booking.Thursday, Hour: 5},booking.Date{Day: booking.Monday, Hour: 12, Minute: 20},listOfFac[1])
   marshedTb := tb.Marshal()
   fmt.Printf("Original: %+v\n", tb)
   fmt.Printf("Marshalled (w Header): %x\n", marshedTb)
