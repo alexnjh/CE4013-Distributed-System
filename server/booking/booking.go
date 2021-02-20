@@ -19,6 +19,7 @@ type Booking struct{
   Fac facility.Facility
 }
 
+// Test marshal of what client is sending
 func (b *Booking) Marshal() []byte {
   // The way we marshal is first string length (1 byte), string, etc
   bnLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.BookerName)))
@@ -35,7 +36,19 @@ func (b *Booking) Marshal() []byte {
   return append(hdr, payload...)
 }
 
-// TODO: Client send booking info (w/o cfm id), Server send back cfm id
+// Used to marshal confirmation ID
+ func (b *Booking) MarshalCfmId() []byte {
+   // The way we marshal is first string length (1 byte), string, etc
+   cfmIdLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.ConfirmationID)))
+
+   payload := cfmIdLen
+   payload = append(payload, []byte(b.ConfirmationID)...)
+   hdr := messagesocket.CreateAddBookingHeader(uint16(len(payload)))
+
+   return append(hdr, payload...)
+ }
+
+// Unmarshal from client (receive booking info), send confirmation ID after booking
 func Unmarshal(data []byte) Booking {
   index := 0
   // Booker Name
