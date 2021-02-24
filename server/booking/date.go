@@ -41,8 +41,8 @@ func MinDate(day Day) Date{
 func MaxDate(day Day) Date{
   return Date{
     Day: day,
-    Hour: 23,
-    Minute: 59,
+    Hour: 24,
+    Minute: 00,
   }
 }
 
@@ -106,9 +106,13 @@ func (d *Date) Plus(v Date) (*Date,error){
   hour := d.Hour + v.Hour
   minute := d.Minute + v.Minute
 
-  if minute > 59 {
+  if minute > 60 {
     hour +=  minute / 60
     minute = minute % 60
+  }
+
+  if hour > 24 {
+    return nil,errors.New("Date offset overflows to next day")
   }
 
   return &Date{
@@ -138,6 +142,10 @@ func (d *Date) Minus(v Date) (*Date,error){
     }
 
     min -= v.Minute
+
+    if hour < 0 {
+      return nil,errors.New("Date offset overflows to previous day")
+    }
 
     return &Date{
       Day: d.Day,

@@ -119,8 +119,7 @@ func ConvertArrayToBytes(avail []Availability) []byte {
 	return append(hdr,payload...)
 }
 
-// Make sure no header!!! (Maybe eventually we unmarshal the header as well?)
-// TODO: Discuss if we are unmarshalling do we pass in byte array of everything including header
+// No header. Should be unmarshalled by then
 func ConvertBytesToArray(data []byte) ([]Availability, error) {
 	var arr []Availability
 

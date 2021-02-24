@@ -2,13 +2,12 @@ package main
 
 import (
   "fmt"
+  "net"
   "server/availability"
   "server/booking"
   "server/facility"
+  "server/messagesocket"
   errorMsg "server/errors"
-
-  // Uncomment this if receiving messages from client
-  // "server/messagesocket"
 )
 
 var (
@@ -32,6 +31,8 @@ var (
     "Meeting Room C",
   }
 
+  list []messagesocket.Message
+
 )
 
 func main(){
@@ -39,13 +40,15 @@ func main(){
   x := errorMsg.New("This is a error!!")
   fmt.Printf("%x\n",x.Marshal())
 
-  // Uncomment this if receiving messages from client
+  //Uncomment this if receiving messages from client
   // msgCh := messagesocket.NewMessageSocket(hostname,hostport)
   //
   // // Loop through channel to wait for messages
   // for msg := range msgCh {
   //   if msg.Type == "Error" {
-  //     fmt.Println(string(msg.Data))
+  //     BroadcastUsingMsgList(msg.Data,list)
+  //     fmt.Println(string(msg.Data)) // Print message data
+  //     list = append(list,msg) // Add to list of clients to inform
   //   }
   // }
 
@@ -54,7 +57,7 @@ func main(){
   println("[INFO] System Start")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
-  obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
+  obj, err := bm.AddBooking("Alex",booking.Date{booking.Monday,5,0},booking.Date{booking.Monday,12,0},listOfFac[1])
 
   if err != nil {
     fmt.Printf("%s\n",err.Error())
@@ -75,6 +78,28 @@ func main(){
   println("[INFO] System After Update")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
 
+  // negative numbers means move forward while positive numbers indicate postpone
+  err = bm.UpdateBookingDuration(obj.ConfirmationID, 180)
+
+  if err != nil {
+    fmt.Printf("%s\n",err.Error())
+    return
+  }
+
+  println("[INFO] System After Update Duration")
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
+  // Delete booking
+  err = bm.RemoveBooking(obj.ConfirmationID)
+
+  if err != nil {
+    fmt.Printf("%s\n",err.Error())
+    return
+  }
+
+  println("[INFO] System After Remove")
+  PrintListOfAvailableDates(listofDayNames,listOfFac,bm)
+
   // Expect error handling
   err = bm.UpdateBooking(obj.ConfirmationID + "err", 180) // Error confirmation ID
   if err == nil {
@@ -91,15 +116,21 @@ func main(){
     panic("Error checking different day")
   }
   fmt.Println(err.Error())
+  err = bm.UpdateBookingDuration(obj.ConfirmationID, -600) // Error different day
+  if err == nil {
+    panic("Error checking different day")
+  }
+  fmt.Println(err.Error())
 
   fmt.Println("Validate Monitor state")
   mm := booking.GetManager()
   mm.PrintMonitoring()
-  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 2000, listOfFac[1])
+  addr, _ := net.ResolveUDPAddr("udp", "localhost") // Will probably crash here
+  mm.AddIP(messagesocket.Message{Addr: addr}, 2000, listOfFac[1])
   mm.PrintMonitoring()
-  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65536}, 2000, listOfFac[0])
+  mm.AddIP(messagesocket.Message{Addr: addr}, 2000, listOfFac[0])
   mm.PrintMonitoring()
-  mm.AddIP(booking.IpAddress{IP: "127.0.0.1", Port: 65535}, 3000, listOfFac[1])
+  mm.AddIP(messagesocket.Message{Addr: addr}, 3000, listOfFac[1])
   mm.PrintMonitoring()
 
   fmt.Println()
@@ -127,7 +158,7 @@ func main(){
 
   fmt.Println()
   fmt.Println("Test Marshalling of Booking")
-  tb, err := bm.AddBooking("Alex",booking.Date{booking.Thursday,5,0},booking.Date{booking.Monday,12,20},listOfFac[1])
+  tb, err := bm.AddBooking("Alex",booking.Date{Day: booking.Thursday, Hour: 5},booking.Date{Day: booking.Monday, Hour: 12, Minute: 20},listOfFac[1])
   marshedTb := tb.Marshal()
   fmt.Printf("Original: %+v\n", tb)
   fmt.Printf("Marshalled (w Header): %x\n", marshedTb)

@@ -1,0 +1,153 @@
+# Generate binary
+
+name: Java Client CI
+
+# Run on PR, commit or manually
+on:
+  push:
+    paths:
+      - '**.java'
+      - 'client/**'
+  pull_request:
+    paths:
+      - '**.java'
+      - 'client/**'
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    name: Generate Client (Ubuntu)
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Java environment
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: '14' # The JDK version to make available on the path.
+
+      - name: Move files out to respective place
+        run: |
+         cd client
+         mkdir -p src/main/java
+         mv src/application src/main/java
+         mv gradleystuff/module-info.java src/main/java/
+         mv gradleystuff/* .
+         chmod +x gradlew
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Generate package
+        run: |
+         cd client
+         gradle wrapper
+         ./gradlew jpackage
+         cd ..
+         mkdir -p package
+         mv client/build/jpackage/* package/
+         rm -r package/client
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: client-linux
+          path: ./package
+  
+  build-macos:
+    runs-on: macos-latest
+    if: github.event_name == 'workflow_dispatch'
+    name: Generate Client (MacOS)
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Java environment
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: '14' # The JDK version to make available on the path.
+
+      - name: Move files out to respective place
+        run: |
+         cd client
+         mkdir -p src/main/java
+         mv src/application src/main/java
+         mv gradleystuff/module-info.java src/main/java/
+         mv gradleystuff/* .
+         chmod +x gradlew
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Generate package
+        run: |
+         cd client
+         gradle wrapper
+         ./gradlew jpackage
+         cd ..
+         mkdir -p package
+         mv client/build/jpackage/* package/
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: client-macos
+          path: ./package
+
+  build-win:
+    runs-on: windows-latest
+    name: Generate Client (Windows)
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: Setup Java environment
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: '14' # The JDK version to make available on the path.
+
+      - name: Move files out to respective place
+        run: |
+         cd client
+         mkdir -p src/main/java
+         mv src/application src/main/java
+         mv gradleystuff/module-info.java src/main/java/
+         mv gradleystuff/* .
+         chmod +x gradlew
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Generate package
+        run: |
+         cd client
+         gradle wrapper
+         ./gradlew jpackage
+         cd ..
+         mkdir -p package
+         mv client/build/jpackage/* package/
+     
+      # Upload as artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: client-win
+          path: ./package

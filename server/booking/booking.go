@@ -19,16 +19,14 @@ type Booking struct{
   Fac facility.Facility
 }
 
+// Test marshal of what client is sending
 func (b *Booking) Marshal() []byte {
   // The way we marshal is first string length (1 byte), string, etc
   bnLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.BookerName)))
-  cfmLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.ConfirmationID)))
   facLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.Fac)))
 
   payload := bnLen
   payload = append(payload, []byte(b.BookerName)...)
-  payload = append(payload, cfmLen...)
-  payload = append(payload, []byte(b.ConfirmationID)...)
   payload = append(payload, []byte(b.Start.String())...) // 7 bytes
   payload = append(payload, []byte(b.End.String())...) // 7 bytes
   payload = append(payload, facLen...)
@@ -38,19 +36,25 @@ func (b *Booking) Marshal() []byte {
   return append(hdr, payload...)
 }
 
-// TODO: Remove confirmation ID
-// TODO: Client send booking info (w/o cfm id), Server send back cfm id
+// Used to marshal confirmation ID
+ func (b *Booking) MarshalCfmId() []byte {
+   // The way we marshal is first string length (1 byte), string, etc
+   cfmIdLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.ConfirmationID)))
+
+   payload := cfmIdLen
+   payload = append(payload, []byte(b.ConfirmationID)...)
+   hdr := messagesocket.CreateAddBookingHeader(uint16(len(payload)))
+
+   return append(hdr, payload...)
+ }
+
+// Unmarshal from client (receive booking info), send confirmation ID after booking
 func Unmarshal(data []byte) Booking {
   index := 0
   // Booker Name
   bnLen := int(data[index])
   bn := string(data[index+1:index+1+bnLen])
   index += 1+bnLen // Get next byte
-
-  // Confirmation ID
-  cfmLen := int(data[index])
-  cfm := string(data[index+1:index+1+cfmLen])
-  index += 1+cfmLen // Get next byte
 
   // Start Date
   sd := string(data[index:index+7])
@@ -67,7 +71,6 @@ func Unmarshal(data []byte) Booking {
 
   return Booking{
     BookerName: bn,
-    ConfirmationID: cfm,
     Start: FromString(sd),
     End: FromString(ed),
     Fac: facility.Facility(fac),
