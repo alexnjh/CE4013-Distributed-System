@@ -8,6 +8,10 @@ import (
   "server/facility"
   "server/messagesocket"
   errorMsg "server/errors"
+
+  //Uncomment this if receiving messages from client
+  //"encoding/hex"
+  //cnfMsg "server/confirmmessage"
 )
 
 var (
@@ -40,19 +44,46 @@ func main(){
   x := errorMsg.New("This is a error!!")
   fmt.Printf("%x\n",x.Marshal())
 
+
+  bm := booking.NewGenericBookingManager()
+
   //Uncomment this if receiving messages from client
   // msgCh := messagesocket.NewMessageSocket(hostname,hostport)
   //
   // // Loop through channel to wait for messages
   // for msg := range msgCh {
+  //
+  //   fmt.Printf("%s\n", msg.Type)
+  //   fmt.Printf("%s\n",hex.EncodeToString(msg.Data)) // Print message data
+  //
   //   if msg.Type == "Error" {
-  //     BroadcastUsingMsgList(msg.Data,list)
-  //     fmt.Println(string(msg.Data)) // Print message data
+  //     //BroadcastUsingMsgList(msg.Data,list)
+  //     msg.Reply(msg.Data)
   //     list = append(list,msg) // Add to list of clients to inform
+  //   }else if msg.Type == "AddBooking" {
+  //     bk := booking.Unmarshal(msg.Data);
+  //
+  //     // Invalid Facility
+  //     if !DoesFacilityExist(listOfFac,bk.Fac) {
+  //       errMsg := errorMsg.New(fmt.Sprintf("Facility %s not found!", bk.Fac))
+  //       msg.Reply(errMsg.Marshal())
+  //     }else{
+  //       obj, err := bm.AddBooking(bk.BookerName,bk.Start,bk.End,bk.Fac)
+  //
+  //       if err != nil {
+  //         fmt.Printf("%s\n",err.Error())
+  //         errMsg := errorMsg.New(err.Error())
+  //         msg.Reply(errMsg.Marshal())
+  //       }else{
+  //         fmt.Printf("%s\n",obj.ConfirmationID)
+  //         repMsg := cnfMsg.New(obj.ConfirmationID)
+  //         msg.Reply(repMsg.Marshal())
+  //       }
+  //     }
+  //
   //   }
   // }
 
-  bm := booking.NewGenericBookingManager()
 
   println("[INFO] System Start")
   PrintListOfAvailableDates(listofDayNames,listOfFac,bm)

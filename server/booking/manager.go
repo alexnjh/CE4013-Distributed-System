@@ -126,7 +126,6 @@ func (b *BookingManager) AddBooking(
 
   obj := NewBooking(name,start,end, f)
 
-
   cbk, status := b.CheckForConflict(&obj)
 
   if status {

@@ -5,10 +5,23 @@ import (
   "encoding/hex"
 )
 
+func CreateConfirmMessageHeader(lengthOfPayload uint16) []byte {
+
+  typeString := "07436f6e6669726d0a"
+  s := "0000"+fmt.Sprintf("%04x", lengthOfPayload+uint16(8))+typeString
+  data, err := hex.DecodeString(s)
+
+  if err != nil {
+      panic(err)
+  }
+
+  return data
+}
+
 func CreateErrorMessageHeader(lengthOfPayload uint16) []byte {
 
   typeString := "054572726f72"
-  s := "0000"+fmt.Sprintf("%04x", lengthOfPayload+uint16(len(typeString)/2))+typeString
+  s := "0000"+fmt.Sprintf("%04x", lengthOfPayload+uint16(6))+typeString
   data, err := hex.DecodeString(s)
 
   if err != nil {

@@ -3,8 +3,6 @@ package booking
 import(
   "fmt"
   "errors"
-  "strconv"
-  "strings"
 )
 
 type Day int
@@ -57,18 +55,12 @@ func MinutesToDate(d Day,i int) Date{
   }
 }
 
-func FromString(str string) Date {
-  daySplit := strings.Split(str, ",")
-  timeSplit := strings.Split(daySplit[1], ":")
-
-  day, _ := strconv.Atoi(daySplit[0])
-  hour, _ := strconv.Atoi(timeSplit[0])
-  min, _ := strconv.Atoi(timeSplit[1])
+func FromString(str []byte) Date {
 
   return Date{
-    Day: Day(day),
-    Hour: hour,
-    Minute: min,
+    Day: Day(str[0]),
+    Hour: int(str[1]),
+    Minute: int(str[2]),
   }
 }
 

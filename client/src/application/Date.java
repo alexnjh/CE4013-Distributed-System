@@ -30,6 +30,15 @@ public class Date {
 	public void setMinute(int minute) {
 		this.minute = minute;
 	}
+	public byte[] getBytes() {
+		
+		Integer d = day.ordinal();	
+		Integer h = hour;
+		Integer m = minute;
+		
+		return new byte[] {d.byteValue(),h.byteValue(),m.byteValue()};
+		
+	}
 
 	 @Override
 	 public String toString() { 

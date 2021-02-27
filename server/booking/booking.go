@@ -9,8 +9,6 @@ import(
   "server/facility"
 )
 
-
-
 type Booking struct{
   BookerName string
   ConfirmationID string
@@ -57,12 +55,12 @@ func Unmarshal(data []byte) Booking {
   index += 1+bnLen // Get next byte
 
   // Start Date
-  sd := string(data[index:index+7])
-  index += 7 // Get next byte
+  sd := data[index:index+3]
+  index += 3 // Get next byte
 
   // End Date
-  ed := string(data[index:index+7])
-  index += 7 // Get next byte
+  ed := data[index:index+3]
+  index += 3 // Get next byte
 
   // Facility
   facLen := int(data[index])
