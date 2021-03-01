@@ -35,18 +35,21 @@ public class MenuScene {
 		Button remove = new Button("Remove Booking");
 		Button view = new Button("View Booking");
 		Button monitor = new Button("Monitor Booking");
+		Button change = new Button("Update Booking");
 		
 		create.setOnAction(e -> NewBookingScene.showScene(stage, conn, name));
-//		remove.setOnAction(e -> window.setScene(bookFacility));
-//		view.setOnAction(e -> window.setScene(viewBook));
-//		monitor.setOnAction(e -> window.setScene(bookFacility));
+		remove.setOnAction(e ->RemoveBooking.showScene(stage, conn,name));
+		view.setOnAction(e -> ViewBooking.showScene(stage, conn, name));
+		change.setOnAction(e->UpdateBooking.showScene(stage, conn, name));
+		//		monitor.setOnAction(e -> window.setScene(bookFacility));
 		
 		create.setMaxWidth(Double.MAX_VALUE);
 		remove.setMaxWidth(Double.MAX_VALUE);
 		view.setMaxWidth(Double.MAX_VALUE);
 		monitor.setMaxWidth(Double.MAX_VALUE);
+		change.setMaxWidth(Double.MAX_VALUE);
 		
-		roomButton.getChildren().addAll(create, remove, view, monitor);
+		roomButton.getChildren().addAll(create, remove, view, monitor, change);
 		
 		border.setCenter(roomButton);
 		Scene scene = new Scene(border,400,400); 

@@ -39,7 +39,7 @@ public class Message {
 	}
 	
 	//haven't display the confirmation id
-	public static void viewDis(String title, String message, String name ,String sTime, String eTime) {
+	public static void viewDis(String title, String message, String faname ,String sTime, String eTime) {
 		
 		Stage vBook = new Stage();
 		vBook.initModality(Modality.APPLICATION_MODAL);
@@ -47,11 +47,11 @@ public class Message {
 		vBook.setMinWidth(400);
 		vBook.setMinHeight(500);
 		
-		Label label = new Label();
+		Label label = new Label("helloid");
 		label.setText(message);
 		
 		Label fac = new Label();
-		label.setText(name);
+		fac.setText(faname);
 		
 		//time
 		Label sT = new Label("Start Time: ");
@@ -66,8 +66,6 @@ public class Message {
 		VBox layout = new VBox(10);
 		layout.getChildren().addAll(label, fac ,sT, startTime, eT, endTime, closeButton);
 		
-		
-		
 		layout.setAlignment(Pos.CENTER);
 		
 		Scene scene = new Scene(layout);
@@ -78,43 +76,43 @@ public class Message {
 	
 	
 	
-public static void viewMod(String title, String id, String name, String sTime, String eTime) {
-		
-		Stage vBook = new Stage();
-		vBook.initModality(Modality.APPLICATION_MODAL);
-		vBook.setTitle(title);
-		vBook.setMinWidth(400);
-		vBook.setMinHeight(300);
-		
-		Label label = new Label();
-		label.setText(id);
-		
-		Label facName = new Label();
-		facName.setText(name);
-		
-		//time
-		Label sT = new Label("Start Time: ");
-		Label startTime =new Label(sTime);
-		
-		Label eT = new Label("End Time: "); 
-		Label endTime = new Label(eTime);
-		
-		Button closeButton = new Button("Close the window");
-		closeButton.setOnAction(e ->vBook.close());
-		
-		VBox layout = new VBox(10);
-		layout.getChildren().addAll(label, facName, sT, startTime, eT, endTime, closeButton);
-		layout.setSpacing(10);
-		
-		
-		layout.setAlignment(Pos.CENTER);
-		
-		Scene scene = new Scene(layout);
-		vBook.setScene(scene);
-		vBook.showAndWait();
-	}
-	
-	
+//public static void viewMod(String title, String id, String name, String sTime, String eTime) {
+//		
+//		Stage vBook = new Stage();
+//		vBook.initModality(Modality.APPLICATION_MODAL);
+//		vBook.setTitle(title);
+//		vBook.setMinWidth(400);
+//		vBook.setMinHeight(300);
+//		
+//		Label label = new Label();
+//		label.setText(id);
+//		
+//		Label facName = new Label();
+//		facName.setText(name);
+//		
+//		//time
+//		Label sT = new Label("Start Time: ");
+//		Label startTime =new Label(sTime);
+//		
+//		Label eT = new Label("End Time: "); 
+//		Label endTime = new Label(eTime);
+//		
+//		Button closeButton = new Button("Close the window");
+//		closeButton.setOnAction(e ->vBook.close());
+//		
+//		VBox layout = new VBox(10);
+//		layout.getChildren().addAll(label, facName, sT, startTime, eT, endTime, closeButton);
+//		layout.setSpacing(10);
+//		
+//		
+//		layout.setAlignment(Pos.CENTER);
+//		
+//		Scene scene = new Scene(layout);
+//		vBook.setScene(scene);
+//		vBook.showAndWait();
+//	}
+//	
+//	
 	
 }
 
