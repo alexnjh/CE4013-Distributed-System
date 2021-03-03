@@ -89,6 +89,11 @@ func (b *BookingManager) getAvailableDates(day Day, list []*Booking) []DateRange
 
 }
 
+func (b *BookingManager) GetBooking(id string) (*Booking,error){
+  return b.getBooking(id)
+}
+
+
 func (b *BookingManager) getBooking(id string) (*Booking,error){
 
   for _, x := range b.BookingList {

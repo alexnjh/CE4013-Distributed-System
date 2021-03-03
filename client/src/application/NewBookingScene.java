@@ -20,6 +20,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
@@ -182,11 +183,21 @@ public class NewBookingScene {
 							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
 							alert2.showAndWait();		
 		            	}else if (reply.getType().equals("Confirm")){
+		            		
+		            		
+		            		TextArea textArea = new TextArea(new String(reply.getPayload(), StandardCharsets.UTF_8));
+		            		textArea.setEditable(false);
+		            		textArea.setWrapText(true);
+		            		GridPane gridPane = new GridPane();
+		            		gridPane.setMaxWidth(Double.MAX_VALUE);
+		            		gridPane.add(textArea, 0, 0);
+		            		
 		            		// Else show the confirmation ID
 							Alert alert2 = new Alert(AlertType.INFORMATION);
 							alert2.setTitle("Booking Confirmation ID");
+							alert2.getDialogPane().setContent(gridPane);
 							alert2.setHeaderText(null);
-							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
+							
 							alert2.showAndWait();	
 		            	}
 		            	MenuScene.showScene(stage, conn, name);

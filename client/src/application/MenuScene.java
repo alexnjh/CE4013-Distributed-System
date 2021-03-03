@@ -29,18 +29,20 @@ public class MenuScene {
 			
 		//create/remove/modify/
 		BorderPane border = new BorderPane();
-		border.setPadding(new Insets(120,50,120,140));// top,right,bottom,left
+		border.setPadding(new Insets(100,50,100,150));// top,right,bottom,left
 		
 		Button create = new Button("New Booking");
 		Button remove = new Button("Remove Booking");
 		Button view = new Button("View Booking");
 		Button monitor = new Button("Monitor Booking");
 		Button change = new Button("Update Booking");
+		Button query = new Button("Query Availability");
 		
 		create.setOnAction(e -> NewBookingScene.showScene(stage, conn, name));
 		remove.setOnAction(e ->RemoveBooking.showScene(stage, conn,name));
 		view.setOnAction(e -> ViewBooking.showScene(stage, conn, name));
 		change.setOnAction(e->UpdateBooking.showScene(stage, conn, name));
+		query.setOnAction(e->QueryAvailabilityScene.showScene(stage, conn, name));
 		//		monitor.setOnAction(e -> window.setScene(bookFacility));
 		
 		create.setMaxWidth(Double.MAX_VALUE);
@@ -49,7 +51,7 @@ public class MenuScene {
 		monitor.setMaxWidth(Double.MAX_VALUE);
 		change.setMaxWidth(Double.MAX_VALUE);
 		
-		roomButton.getChildren().addAll(create, remove, view, monitor, change);
+		roomButton.getChildren().addAll(create, remove, view, monitor, change, query);
 		
 		border.setCenter(roomButton);
 		Scene scene = new Scene(border,400,400); 

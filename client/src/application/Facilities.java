@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 public class Facilities {
 	
-	public static String facilities[]= {"RoomA","Meeting Room B", "RoomC"};
+	public static String facilities[]= {"Meeting Room A","Meeting Room B", "Meeting Room C"};
 	
 	public static void showScene(Stage stage)
 	{	

@@ -44,4 +44,10 @@ public class Helper {
 	    }
 	    return new String(hexChars, StandardCharsets.UTF_8);
 	}
+	
+	public static boolean areAllFalse(boolean[] array)
+	{
+	    for(boolean b : array) if(b) return false;
+	    return true;
+	}
 }

@@ -2,13 +2,17 @@ package application;
 
 public class ViewRequest{
 
+	private String id;
+	
 	public ViewRequest(String conid) {
-		// TODO Code Stub
+		this.id = conid;
 	}
 
 	public byte[] Marshal() {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] payload = id.getBytes();
+		byte[] header = Header.CreateViewBookingHeader(payload.length);
+		byte[] finalPayload = Helper.ConcatByteArray(header,payload);
+		return finalPayload;
 	}
 
 }

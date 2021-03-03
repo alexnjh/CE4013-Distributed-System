@@ -55,18 +55,41 @@ func MinutesToDate(d Day,i int) Date{
   }
 }
 
-func FromString(str []byte) Date {
+func NewDateFromByteArray(str []byte) (*Date,error) {
 
-  return Date{
+  d:= Day(str[0])
+  h:=int(str[1])
+  m:=int(str[2])
+
+  if d < 0 || d > 7 {
+    return nil,errors.New("Invalid day given")
+  }
+
+  if h < 0 || h > 24 {
+    return nil,errors.New("Invalid date given")
+  }
+
+  if m < 0 || h > 59 {
+    return nil,errors.New("Invalid date given")
+  }
+
+
+
+  return &Date{
     Day: Day(str[0]),
     Hour: int(str[1]),
     Minute: int(str[2]),
-  }
+  },nil
 }
 
 func (d *Date) String() string{
   // Always 7 bytes
   return fmt.Sprintf("%d,%.2d:%.2d",d.Day,d.Hour,d.Minute)
+}
+
+func (d *Date) ToBytes() []byte{
+  // Always 3 bytes
+  return []byte{byte(d.Day),byte(d.Hour),byte(d.Minute)}
 }
 
 func (d *Date) Equal(v Date) bool{

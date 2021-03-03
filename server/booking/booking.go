@@ -25,17 +25,18 @@ func (b *Booking) Marshal() []byte {
 
   payload := bnLen
   payload = append(payload, []byte(b.BookerName)...)
-  payload = append(payload, []byte(b.Start.String())...) // 7 bytes
-  payload = append(payload, []byte(b.End.String())...) // 7 bytes
+  payload = append(payload, []byte(b.Start.ToBytes())...) // 7 bytes
+  payload = append(payload, []byte(b.End.ToBytes())...) // 7 bytes
   payload = append(payload, facLen...)
   payload = append(payload, []byte(b.Fac)...)
-  hdr := messagesocket.CreateAddBookingHeader(uint16(len(payload)))
+  payload = append(payload, []byte(b.ConfirmationID)...)
+  hdr := messagesocket.CreateBookingDetailHeader(uint16(len(payload)))
 
   return append(hdr, payload...)
 }
 
 // Unmarshal from client (receive booking info), send confirmation ID after booking
-func Unmarshal(data []byte) Booking {
+func Unmarshal(data []byte) (*Booking,error) {
   index := 0
   // Booker Name
   bnLen := int(data[index])
@@ -55,12 +56,24 @@ func Unmarshal(data []byte) Booking {
   fac := string(data[index+1:index+1+facLen])
   index += 1+bnLen+1 // Get next byte
 
-  return Booking{
-    BookerName: bn,
-    Start: FromString(sd),
-    End: FromString(ed),
-    Fac: facility.Facility(fac),
+  sdate, err := NewDateFromByteArray(sd)
+
+  if err != nil {
+    return nil,err
   }
+
+  edate, err := NewDateFromByteArray(ed)
+
+  if err != nil {
+    return nil,err
+  }
+
+  return &Booking{
+    BookerName: bn,
+    Start: *sdate,
+    End: *edate,
+    Fac: facility.Facility(fac),
+  },nil
 }
 
 func NewBooking(name string, start Date, end Date, f facility.Facility) Booking{

@@ -44,4 +44,9 @@ public class Date {
 	 public String toString() { 
 	     return String.format(day + "/" + hour + "/" + minute); 
 	 } 
+	 
+	 
+	 public String toStringWithoutDay() { 
+	     return String.format(hour + "/" + minute); 
+	 } 
 }

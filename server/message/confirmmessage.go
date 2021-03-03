@@ -1,4 +1,4 @@
-package confirmmessage
+package message
 
 import(
   "server/messagesocket"
@@ -16,13 +16,13 @@ func (e *ConfirmMessage) Marshal() []byte{
   return append(hdr,payload...)
 }
 
-func New(s string) ConfirmMessage{
+func NewConfirmMessage(s string) ConfirmMessage{
   return ConfirmMessage{
     s:s,
   }
 }
 
-func Unmarshal(data []byte) (ConfirmMessage,error){
+func UnmarshalConfirmMsg(data []byte) (ConfirmMessage,error){
   return ConfirmMessage{
     s: string(data),
   },nil

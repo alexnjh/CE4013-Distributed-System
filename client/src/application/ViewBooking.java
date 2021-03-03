@@ -42,7 +42,7 @@ public class ViewBooking {
 		TextField id = new TextField();
 		GridPane.setConstraints(id, 1, 0);
 		
-		Button vbutton = new Button("Checking");
+		Button vbutton = new Button("Submit");
 		Button cancel = new Button("Cancel");
 		
 		HBox.setMargin(conId, new Insets(0, 10, 0, 0));
@@ -79,7 +79,7 @@ public class ViewBooking {
 	                public Void call() throws InterruptedException {
 	                	
 	     		
-						// Create booking request
+						// Create view request
 						ViewRequest req = new ViewRequest(conID);
 	                	
 	                	updateProgress(1, 10);
@@ -112,11 +112,11 @@ public class ViewBooking {
 					alert2.setHeaderText(null);
 					alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
 					alert2.showAndWait();		
-            	}else if (reply.getType().equals("Confirm")){
+            	}else if (reply.getType().equals("BookingDetail")){
             		
             		//need to unmarshall the things and show
-            		
-            		viewBook("View Booking", "conID", "Room", "sTime", "eTime");
+            		Booking bk = new Booking(reply.getPayload());
+            		viewBook("View Booking", bk.getConfID(), bk.getFacname(), bk.getSdate().toString(), bk.getEdate().toString());
 					
             	}
 		    	MenuScene.showScene(stage, conn, name);
@@ -181,7 +181,7 @@ public static void viewBook(String title, String id, String name, String sTime, 
 		//addAll(label, facName, sT, startTime, eT, endTime, closeButton);
 		
 		//Button modify= new Button("Modify");
-		Button close = new Button("Close");
+	    
 		layout.setAlignment(Pos.CENTER);
 		
 		HBox.setMargin(label2, new Insets(0, 10, 0, 0));
@@ -195,12 +195,6 @@ public static void viewBook(String title, String id, String name, String sTime, 
 		
 		HBox.setMargin(eT, new Insets(0, 10, 0, 0));
 		layout.add(new HBox(eT, endTime), 0,4);
-		
-		//HBox.setMargin(modify, new Insets(0, 10, 0, 0));
-		layout.add(close, 0,5);
-		
-		
-		close.setOnAction(e->vBook.close());
 		
 		Scene scene = new Scene(layout);
 		vBook.setScene(scene);

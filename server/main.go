@@ -6,8 +6,7 @@ import (
   "net"
   "server/availability"
   "server/booking"
-  cnfMsg "server/confirmmessage"
-  errorMsg "server/errors"
+  message "server/message"
   "server/facility"
   "server/messagesocket"
 )
@@ -16,7 +15,7 @@ var (
 
   actualRun = true
 
-  hostname = "127.0.0.1"
+  hostname = "172.27.25.150"
   hostport = 2222
 
   listofDayNames = []string{
@@ -49,7 +48,7 @@ func main(){
   } else {
     fmt.Println("Running tests")
 
-    x := errorMsg.New("This is a error!!")
+    x := message.NewErrorMessage("This is a error!!")
     fmt.Printf("%x\n",x.Marshal())
 
     testRun(bm)
@@ -67,32 +66,86 @@ func startRun(bm *booking.BookingManager) {
     fmt.Printf("%s\n", msg.Type)
     fmt.Printf("%s\n",hex.EncodeToString(msg.Data)) // Print message data
 
-    if msg.Type == "Error" {
-      //BroadcastUsingMsgList(msg.Data,list)
-      msg.Reply(msg.Data)
-      list = append(list,msg) // Add to list of clients to inform
-    }else if msg.Type == "AddBooking" {
-      bk := booking.Unmarshal(msg.Data);
 
-      // Invalid Facility
-      if !DoesFacilityExist(listOfFac,bk.Fac) {
-        errMsg := errorMsg.New(fmt.Sprintf("Facility %s not found!", bk.Fac))
-        msg.Reply(errMsg.Marshal())
-      }else{
-        obj, err := bm.AddBooking(bk.BookerName,bk.Start,bk.End,bk.Fac)
+    switch msg.Type{
+    	case "ViewBooking":
+        bk, err := message.UnmarshalViewBookingMsg(msg.Data)
 
         if err != nil {
           fmt.Printf("%s\n",err.Error())
-          errMsg := errorMsg.New(err.Error())
+          errMsg := message.NewErrorMessage(err.Error())
           msg.Reply(errMsg.Marshal())
         }else{
-          fmt.Printf("%s\n",obj.ConfirmationID)
-          repMsg := cnfMsg.New(obj.ConfirmationID)
-          msg.Reply(repMsg.Marshal())
-        }
-      }
+          obj, err := bm.GetBooking(bk.ConfirmationID)
 
-    }
+          if err != nil {
+            fmt.Printf("%s\n",err.Error())
+            errMsg := message.NewErrorMessage(err.Error())
+            msg.Reply(errMsg.Marshal())
+          }else{
+            msg.Reply(obj.Marshal())
+          }
+        }
+    	case "AddBooking":
+        bk,err := booking.Unmarshal(msg.Data)
+
+        if err != nil {
+          fmt.Printf("%s\n",err.Error())
+          errMsg := message.NewErrorMessage(err.Error())
+          msg.Reply(errMsg.Marshal())
+        }else{
+          // Invalid Facility
+          if !DoesFacilityExist(listOfFac,bk.Fac) {
+            errMsg := message.NewErrorMessage(fmt.Sprintf("Facility %s not found!", bk.Fac))
+            msg.Reply(errMsg.Marshal())
+          }else{
+            obj, err := bm.AddBooking(bk.BookerName,bk.Start,bk.End,bk.Fac)
+
+            if err != nil {
+              fmt.Printf("%s\n",err.Error())
+              errMsg := message.NewErrorMessage(err.Error())
+              msg.Reply(errMsg.Marshal())
+              fmt.Printf("%s\n",hex.EncodeToString(errMsg.Marshal())) // Print message data
+            }else{
+              fmt.Printf("%s\n",obj.ConfirmationID)
+              repMsg := message.NewConfirmMessage(obj.ConfirmationID)
+              msg.Reply(repMsg.Marshal())
+              fmt.Printf("%s\n",hex.EncodeToString(repMsg.Marshal())) // Print message data
+            }
+          }
+        }
+
+      case "QueryAvailability":
+        bk, err := message.UnmarshalQueryAvailabilityMsg(msg.Data)
+
+        if err != nil {
+          fmt.Printf("%s\n",err.Error())
+          errMsg := message.NewErrorMessage(err.Error())
+          msg.Reply(errMsg.Marshal())
+        }else{
+
+          if !DoesFacilityExist(listOfFac,bk.Fac) {
+            errMsg := message.NewErrorMessage(fmt.Sprintf("Facility %s not found!", bk.Fac))
+            msg.Reply(errMsg.Marshal())
+          }else{
+
+            fmt.Printf("%v",bk.Days)
+
+            obj := bm.GetAvailableDates(bk.Fac,bk.Days...)
+            byteArr, err := message.MarshalQueryAvailabilityMsg(obj,bk.Days)
+
+            if err != nil {
+              fmt.Printf("%s\n",err.Error())
+              errMsg := message.NewErrorMessage(err.Error())
+              msg.Reply(errMsg.Marshal())
+            }else{
+              msg.Reply(byteArr)
+            }
+          }
+
+        }
+    	default:
+  	}
   }
 }
 
@@ -208,7 +261,7 @@ func testRun(bm *booking.BookingManager) {
   fmt.Printf("Original: %+v\n", tb)
   fmt.Printf("Marshalled (w Header): %x\n", marshedTb)
   fmt.Printf("Marshalled (w/o Header): %x\n", marshedTb[15:])
-  unmarshedTb := booking.Unmarshal(marshedTb[15:])
+  unmarshedTb, err := booking.Unmarshal(marshedTb[15:])
   fmt.Printf("Unmarshalled: %+v\n", &unmarshedTb)
   // 19
 }

@@ -1,5 +1,5 @@
 // Error class, used as placeholder for now
-package errors
+package message
 
 import(
   "server/messagesocket"
@@ -21,13 +21,13 @@ func (e *ErrorMessage) Marshal() []byte{
   return append(hdr,payload...)
 }
 
-func New(s string) ErrorMessage{
+func NewErrorMessage(s string) ErrorMessage{
   return ErrorMessage{
     s:s,
   }
 }
 
-func Unmarshal(data []byte) (ErrorMessage,error){
+func UnmarshalErrorMessage(data []byte) (ErrorMessage,error){
   return ErrorMessage{
     s: string(data),
   },nil

@@ -40,7 +40,7 @@ public class Connection {
 		socket.receive(reply);
 			
 		// Unpack the payload
-		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength()-1);
+		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
 		
 		// Close the socket
 		socket.close();
@@ -55,6 +55,7 @@ public class Connection {
 		System.out.println(Arrays.toString(data));
 		byte[] partA = Arrays.copyOfRange(data, 5, 5+typeLen);
 		byte[] partB = Arrays.copyOfRange(data, 5+typeLen, data.length);
+		System.out.println(Helper.bytesToHex(partB));
 		return new ReplyMessage(new String(partA, StandardCharsets.UTF_8), partB);
 	}
 		
