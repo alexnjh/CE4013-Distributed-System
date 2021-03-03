@@ -6,12 +6,10 @@ import (
   "net"
   "server/availability"
   "server/booking"
+  cnfMsg "server/confirmmessage"
+  errorMsg "server/errors"
   "server/facility"
   "server/messagesocket"
-  errorMsg "server/errors"
-
-  //Uncomment this if receiving messages from client
-  cnfMsg "server/confirmmessage"
 )
 
 var (
