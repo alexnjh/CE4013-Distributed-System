@@ -34,18 +34,6 @@ func (b *Booking) Marshal() []byte {
   return append(hdr, payload...)
 }
 
-// Used to marshal confirmation ID
- func (b *Booking) MarshalCfmId() []byte {
-   // The way we marshal is first string length (1 byte), string, etc
-   cfmIdLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.ConfirmationID)))
-
-   payload := cfmIdLen
-   payload = append(payload, []byte(b.ConfirmationID)...)
-   hdr := messagesocket.CreateAddBookingHeader(uint16(len(payload)))
-
-   return append(hdr, payload...)
- }
-
 // Unmarshal from client (receive booking info), send confirmation ID after booking
 func Unmarshal(data []byte) Booking {
   index := 0
