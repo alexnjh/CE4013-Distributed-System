@@ -80,15 +80,15 @@ public class ViewBooking {
 	                	
 	     		
 						// Create booking request
-						//ViewRequest req = new ViewRequest(conID);
+						ViewRequest req = new ViewRequest(conID);
 	                	
-//	                	updateProgress(1, 10);
-//	                	try {
-//						//	reply = conn.sendMessage(req.Marshal());
-//						} catch (IOException e) {
-//							// TODO Auto-generated catch block
-//							System.out.println(e.toString());
-//						}
+	                	updateProgress(1, 10);
+	                	try {
+							reply = conn.sendMessage(req.Marshal());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							System.out.println(e.toString());
+						}
 	                	
 	                    updateProgress(10, 10);
 	                    return null ;
