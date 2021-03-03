@@ -15,7 +15,7 @@ var (
 
   actualRun = true
 
-  hostname = "172.27.25.150"
+  hostname = "127.0.0.1"
   hostport = 2222
 
   listofDayNames = []string{
