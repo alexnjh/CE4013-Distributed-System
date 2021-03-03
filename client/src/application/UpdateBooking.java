@@ -1,8 +1,11 @@
 package application;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import application.NewBookingScene.ProgressForm;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -19,6 +22,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class UpdateBooking {
+	
+	private static ReplyMessage reply;
 	
 	public static void showScene(Stage stage, Connection conn, String name)
 	{
@@ -61,9 +66,9 @@ public class UpdateBooking {
 		
 	    updateBut.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
-		    	
+		    	//get required values
 		    	String conID;
-		    	int hrs,mins ;
+		    	int hrs,mins ,offset ;
 		    	
 		    	
 		    	Alert alert = new Alert(AlertType.ERROR);
@@ -73,8 +78,9 @@ public class UpdateBooking {
 				conID = (String)id.getText();
 				hrs = Integer.parseInt(hr.getText());
 				mins = Integer.parseInt(min.getText());
+				
 						//if all input is empty			
-				if(id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
+			if(id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
 										
 					alert.setContentText("Invalid Confirmation ID/Time");
 					alert.showAndWait();
@@ -83,26 +89,65 @@ public class UpdateBooking {
 		    		if(dif.getValue().toString().equalsIgnoreCase("+")) {
 		    			//offset will be addition to previous
 		    			// sent request to server
-		    		}
+		    			offset = mins + (hrs*60); 
+		       		}else{
 		    		//offset will be minus
+		       			offset = (-1)*(mins + (hrs*60)); 
+		       		}
 		    	
-		    	
-		    	
-//		    	if (reply.getType().equals("Error")) {
-//					Alert alert2 = new Alert(AlertType.ERROR);
-//					alert2.setTitle("Server reply");
-//					alert2.setHeaderText(null);
-//					alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
-//					alert2.showAndWait();		
-//            	}else if (reply.getType().equals("Confirm")){
-//            		// Else show the confirmation ID and the booking they made
-//       				Alert alert2 = new Alert(AlertType.INFORMATION);
-//					alert2.setTitle("Booking Confirmation ID");
-//					alert2.setHeaderText(null);
-//					alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
-//					alert2.showAndWait();	
-//            	}
-		    	
+		    		ProgressForm pForm = new ProgressForm();
+					
+		            // Send message to server and wait for reply
+		            Task<Void> task = new Task<Void>() {
+		                @Override
+		                public Void call() throws InterruptedException {
+		                	
+		        			
+							// Create booking request
+				UpdateRequest req = new UpdateRequest(conID, offset);
+		                	
+		                	updateProgress(1, 10);
+		                	try {
+								reply = conn.sendMessage(req.Marshal());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								System.out.println(e.toString());
+							}
+		                	
+		                    updateProgress(10, 10);
+		                    return null ;
+		                }
+		            };
+		            
+		            // binds progress of progress bars to progress of task:
+		            pForm.activateProgressBar(task);
+		            
+		            // in real life this method would get the result of the task
+		            // and update the UI based on its value:
+		            task.setOnSucceeded(event -> {
+		            	pForm.getDialogStage().close();
+		            	
+		            	
+		            System.out.println(reply.getType());
+		            	// If reply is an error show the error
+		            if (reply.getType().equals("Error")) {
+							Alert alert2 = new Alert(AlertType.ERROR);
+							alert2.setTitle("Server reply");
+							alert2.setHeaderText(null);
+							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
+							alert2.showAndWait();		
+		            }else if (reply.getType().equals("Confirm")){
+		            		// Else show the confirmation ID
+							Alert alert2 = new Alert(AlertType.INFORMATION);
+							alert2.setTitle("Booking Confirmation ID");
+							alert2.setHeaderText(null);
+							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
+							alert2.showAndWait();	
+		            }
+		            MenuScene.showScene(stage, conn, name);
+		            });
+		            Thread thread = new Thread(task);
+		            thread.start();
 		    }
 				
 		   }

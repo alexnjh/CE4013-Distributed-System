@@ -3,7 +3,9 @@ package application;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import application.NewBookingScene.ProgressForm;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -63,34 +65,64 @@ public class ViewBooking {
 				
 				conID = (String)id.getText();
 				
-				if(id.getText().isEmpty()) {
+			if(id.getText().isEmpty()) {
 					
 					alert.setContentText("Invalid Confirmation ID");
 					alert.showAndWait();
 		    }else {
 		    	//sent the request to the server with the id
-		    	
-		    	
-		    	
-		    	
-		    	if (reply.getType().equals("Error")) {
+		    	ProgressForm pForm = new ProgressForm();
+				
+	            // Send message to server and wait for reply
+	            Task<Void> task2 = new Task<Void>() {
+	                @Override
+	                public Void call() throws InterruptedException {
+	                	
+	     		
+						// Create booking request
+						ViewRequest req = new ViewRequest(conID);
+	                	
+	                	updateProgress(1, 10);
+	                	try {
+							reply = conn.sendMessage(req.Marshal());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							System.out.println(e.toString());
+						}
+	                	
+	                    updateProgress(10, 10);
+	                    return null ;
+	                }
+	            };
+	            
+	            // binds progress of progress bars to progress of task:
+	            pForm.activateProgressBar(task2);
+	            
+	            // in real life this method would get the result of the task
+	            // and update the UI based on its value:
+	            task2.setOnSucceeded(event -> {
+	            	pForm.getDialogStage().close();
+	            	
+	            	
+	            	System.out.println(reply.getType());
+	
+		      	if (reply.getType().equals("Error")) {
 					Alert alert2 = new Alert(AlertType.ERROR);
 					alert2.setTitle("Server reply");
 					alert2.setHeaderText(null);
 					alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
 					alert2.showAndWait();		
             	}else if (reply.getType().equals("Confirm")){
-            		// Else show the confirmation ID and the booking they made
-//       			Alert alert2 = new Alert(AlertType.INFORMATION);
-//					alert2.setTitle("Booking Confirmation ID");
-//					alert2.setHeaderText(null);
-//					alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
-//					alert2.showAndWait();	
+            		
             		//need to unmarshall the things and show
+            		
             		viewBook("View Booking", "conID", "Room", "sTime", "eTime");
 					
             	}
-		    	
+		    	MenuScene.showScene(stage, conn, name);
+	            });
+	            Thread thread = new Thread(task2);
+	            thread.start();
 		    }
 				
 		   }

@@ -143,7 +143,7 @@ private static ReplyMessage reply;
 							Date enddate = new Date(day,endhrs,endmins);
 							
 							// Create booking request
-							BookingRequest req = new BookingRequest(name,fac,stdate,enddate);
+							MonitorRequest req = new MonitorRequest(name,fac,stdate,enddate);
 		                	
 		                	updateProgress(1, 10);
 		                	try {
@@ -177,12 +177,8 @@ private static ReplyMessage reply;
 							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
 							alert2.showAndWait();		
 		            	}else if (reply.getType().equals("Confirm")){
-		            		// Else show the confirmation ID
-							Alert alert2 = new Alert(AlertType.INFORMATION);
-							alert2.setTitle("Booking Confirmation ID");
-							alert2.setHeaderText(null);
-							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
-							alert2.showAndWait();	
+		            		// Else show the users and the monitoring people
+							
 		            	}
 		            	MenuScene.showScene(stage, conn, name);
 		            });
