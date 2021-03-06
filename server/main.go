@@ -141,6 +141,27 @@ func startRun(bm *booking.BookingManager) {
 				}
 
 			}
+
+        case "DeleteBooking":
+          bk, err := message.UnmarshalDelBookingMsg(msg.Data)
+
+          if err != nil {
+            fmt.Printf("%s\n", err.Error())
+            errMsg := message.NewErrorMessage(err.Error())
+            msg.Reply(errMsg.Marshal())
+          } else {
+            err := bm.RemoveBooking(bk.ConfirmationID)
+            if err != nil {
+              // Invalid booking
+              errMsg := message.NewErrorMessage(err.Error())
+              msg.Reply(errMsg.Marshal())
+            } else {
+              // If successful send back confirmation ID
+              repMsg := message.NewConfirmMessage(bk.ConfirmationID)
+              msg.Reply(repMsg.Marshal())
+              fmt.Printf("%s\n", hex.EncodeToString(repMsg.Marshal())) // Print message data
+            }
+          }
 		default:
 		}
 	}
