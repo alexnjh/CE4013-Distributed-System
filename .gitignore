@@ -6,3 +6,9 @@ client/.project
 client/.classpath
 client/.gradle
 client/build
+client/build.gradle
+client/gradlew
+client/gradlew.bat
+client/gradle/wrapper/gradle-wrapper.jar
+client/gradle/wrapper/gradle-wrapper.properties
+client/src/main/java/module-info.java
