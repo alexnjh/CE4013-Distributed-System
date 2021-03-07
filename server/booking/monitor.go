@@ -1,6 +1,7 @@
 package booking
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net"
 	"server/availability"
@@ -79,7 +80,9 @@ func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType str
 	blastMsg := fmt.Sprintf("Booking %s for %s", delType, facility)
 	fmt.Println(blastMsg)
 
-	facAvail := GetFacilityAvailability(facility, bm)
+	days := []Day{Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
+	dates := bm.GetAvailableDates(facility, days...)
+	byteArr, err := MarshalQueryAvailabilityMonitorMsg(dates, blastMsg, days)
 
 	toBc := mgmt.GetClientsToBroadcast(facility)
 	messageList := make([]messagesocket.Message, len(toBc))
@@ -87,10 +90,14 @@ func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType str
 		messageList[i] = bc.Message
 	}
 
+	var marshalled []byte
 	// Send availability of facility
-	marshalled := availability.ConvertArrayToBytes(facAvail)
-
-	// TODO: Do we need to send blast message
+	if err != nil {
+		fmt.Printf("%s\n", err.Error())
+		return // Don't send availability on error
+	} else {
+		marshalled = byteArr
+	}
 
 	mgmt.BroadcastUsingMsgList(marshalled, messageList)
 }
@@ -111,8 +118,6 @@ func GetFacilityAvailability(facility facility.Facility, bm *BookingManager) []a
 }
 
 func (mgmt *MonitoringManager) BroadcastUsingMsgList(data []byte, list []messagesocket.Message){
-	// TODO: NOOP for now while testing
-	return
 	for _, a := range list {
 		fmt.Printf("Broacasting update to: %s\n", a.Addr.String())
 		a.Reply(data)
@@ -173,3 +178,37 @@ func (mgmt *MonitoringManager) CheckIPExistIndex(address net.Addr, fac facility.
 	return exist
 }
 
+// This is simply query availabilty but for monitoring
+func MarshalQueryAvailabilityMonitorMsg(raw [][]DateRange, actionString string, dname []Day) ([]byte, error) {
+	payload := make([]byte, 0)
+
+	// We place the action string in front first (length of string 1 byte, string x byte)
+	fmt.Println(len(actionString))
+	asLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(actionString)))
+	payload = append(payload, asLen...)
+	payload = append(payload, []byte(actionString)...)
+
+	for idx, x := range raw {
+		payload = append(payload, byte(dname[idx]))
+		payload = append(payload, byte(len(x)))
+
+		for _, v := range x {
+
+			temp := make([]byte, 6)
+
+			temp[0] = byte(v.Start.Day)
+			temp[1] = byte(v.Start.Hour)
+			temp[2] = byte(v.Start.Minute)
+			temp[3] = byte(v.End.Day)
+			temp[4] = byte(v.End.Hour)
+			temp[5] = byte(v.End.Minute)
+
+			payload = append(payload, temp...)
+		}
+	}
+
+
+
+	hdr := messagesocket.CreateMonitorAvailabilityHeader(uint16(len(payload)))
+	return append(hdr, payload...),nil
+}

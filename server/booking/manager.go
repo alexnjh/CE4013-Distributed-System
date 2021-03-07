@@ -8,314 +8,310 @@ import (
   "sort"
 )
 
-type BookingManager struct{
-  BookingList map[Day][]*Booking
+type BookingManager struct {
+	BookingList map[Day][]*Booking
 }
 
 // Create a generic booking manager
-func NewGenericBookingManager() *BookingManager{
+func NewGenericBookingManager() *BookingManager {
 
-  list := make(map[Day][]*Booking)
+	list := make(map[Day][]*Booking)
 
-  for i := 0; i < 7; i++ {
-    list[Day(i)]=make([]*Booking, 0)
+	for i := 0; i < 7; i++ {
+		list[Day(i)] = make([]*Booking, 0)
 	}
 
-  return &BookingManager{
-    BookingList: list,
-  }
+	return &BookingManager{
+		BookingList: list,
+	}
 }
 
-func (b *BookingManager) GetAvailableDates(fac facility.Facility,days ...Day) [][]DateRange{
+func (b *BookingManager) GetAvailableDates(fac facility.Facility, days ...Day) [][]DateRange {
 
-  result := make([][]DateRange, len(days))
+	result := make([][]DateRange, len(days))
 
-  for idx, d := range days {
-    result[idx]=b.getAvailableDates(d, b.getBookings(d,fac))
-    // fmt.Printf("%v\n",len(b.getBookings(d,fac)))
-  }
+	for idx, d := range days {
+		result[idx] = b.getAvailableDates(d, b.getBookings(d, fac))
+		// fmt.Printf("%v\n",len(b.getBookings(d,fac)))
+	}
 
-  return result;
+	return result
 
 }
 
 // This is based on the assumtion than when a booking is added the array it is always sorted
 // Therefore it is not necessary to sort the array
-func (b *BookingManager) getAvailableDates(day Day, list []*Booking) []DateRange{
+func (b *BookingManager) getAvailableDates(day Day, list []*Booking) []DateRange {
 
-  initial := MinDate(day)
+	initial := MinDate(day)
 
-  end := MaxDate(day)
+	end := MaxDate(day)
 
-  availDates := make([]DateRange,len(list))
+	availDates := make([]DateRange, len(list))
 
+	if len(list) != 0 {
 
-  if len(list) != 0{
+		if initial.Equal(list[0].Start) && end.Equal(list[0].End) {
+			return make([]DateRange, 0)
+		}
 
-    if initial.Equal(list[0].Start) && end.Equal(list[0].End){
-      return make([]DateRange,0)
-    }
+		availDates[0] = DateRange{
+			Start: initial,
+			End:   list[0].Start,
+		}
 
-    availDates[0] = DateRange{
-      Start: initial,
-      End: list[0].Start,
-    }
+	} else {
+		availDates = append(availDates, DateRange{
+			Start: initial,
+			End:   end,
+		})
+		return availDates
+	}
 
-  }else{
-    availDates = append(availDates, DateRange{
-      Start: initial,
-      End: end,
-    })
-    return availDates
-  }
+	for idx, d := range list[1:] {
 
+		availDates[idx+1] = DateRange{
+			Start: list[idx].End,
+			End:   d.Start,
+		}
+	}
 
-  for idx, d := range list[1:] {
+	if list[len(list)-1].End.LessThan(end) {
+		availDates = append(availDates, DateRange{
+			Start: list[len(list)-1].End,
+			End:   end,
+		})
+	}
 
-    availDates[idx+1]=DateRange{
-      Start: list[idx].End,
-      End: d.Start,
-    }
-  }
-
-  if list[len(list)-1].End.LessThan(end) {
-    availDates = append(availDates,DateRange{
-      Start: list[len(list)-1].End,
-      End: end,
-    })
-  }
-
-  return availDates
+	return availDates
 
 }
 
-func (b *BookingManager) GetBooking(id string) (*Booking,error){
-  return b.getBooking(id)
+func (b *BookingManager) GetBooking(id string) (*Booking, error) {
+	return b.getBooking(id)
 }
 
+func (b *BookingManager) getBooking(id string) (*Booking, error) {
 
-func (b *BookingManager) getBooking(id string) (*Booking,error){
+	for _, x := range b.BookingList {
+		for _, y := range x {
+			if y.ConfirmationID == id {
+				return y, nil
+			}
+		}
+	}
 
-  for _, x := range b.BookingList {
-      for _, y := range x {
-        if y.ConfirmationID == id {
-          return y,nil
-        }
-      }
-  }
-
-  return nil, errors.New("Invalid booking ID")
+	return nil, errors.New("Invalid booking ID")
 
 }
 
-func (b *BookingManager) getBookings(day Day, fac facility.Facility) []*Booking{
+func (b *BookingManager) getBookings(day Day, fac facility.Facility) []*Booking {
 
-  result := make([]*Booking,0)
+	result := make([]*Booking, 0)
 
-  for _, booking := range b.BookingList[day] {
-    if booking.Fac == fac {
-      result = append(result, booking)
-    }
-  }
+	for _, booking := range b.BookingList[day] {
+		if booking.Fac == fac {
+			result = append(result, booking)
+		}
+	}
 
-  return result
+	return result
 
 }
 
 func (b *BookingManager) AddBooking(
-  name string,
-  start Date,
-  end Date,
-  f facility.Facility,
-  ) (*Booking,error){
+	name string,
+	start Date,
+	end Date,
+	f facility.Facility,
+) (*Booking, error) {
 
-  obj := NewBooking(name,start,end, f)
+	obj := NewBooking(name, start, end, f)
 
-  cbk, status := b.CheckForConflict(&obj)
+	cbk, status := b.CheckForConflict(&obj)
 
-  if status {
-    return nil,errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]",obj.Start.String(),obj.End.String(),cbk.Start.String(),cbk.End.String()))
-  }
+	if status {
+		return nil, errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]", obj.Start.String(), obj.End.String(), cbk.Start.String(), cbk.End.String()))
+	}
 
-  // Append works on nil slices.
-  b.BookingList[start.Day] = append(b.BookingList[start.Day], &obj)
+	// Append works on nil slices.
+	b.BookingList[start.Day] = append(b.BookingList[start.Day], &obj)
 
-  sortBooking(b, start)
+	sortBooking(b, start)
 
-  GetManager().Broadcast(f, CreateBooking, b)
+	GetManager().Broadcast(f, CreateBooking, b)
 
-  return &obj,nil
+	return &obj, nil
 
 }
 
 func sortBooking(b *BookingManager, start Date) {
-  // Sort in descending order
-  sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
+	// Sort in descending order
+	sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
 
-    return b.BookingList[start.Day][i].End.LessThan(b.BookingList[start.Day][j].Start)
+		return b.BookingList[start.Day][i].End.LessThan(b.BookingList[start.Day][j].Start)
 
-  })
+	})
 }
 
-func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking,bool){
+func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking, bool) {
 
-  list := b.getBookings(booking.Start.Day, booking.Fac)
+	list := b.getBookings(booking.Start.Day, booking.Fac)
 
-  for _, v := range(list){
-    if booking.Start.LessThan(v.End) && v.Start.LessThan(booking.End) && booking.ConfirmationID != v.ConfirmationID {
-      return v,true
-    }
-  }
+	for _, v := range list {
+		if booking.Start.LessThan(v.End) && v.Start.LessThan(booking.End) && booking.ConfirmationID != v.ConfirmationID {
+			return v, true
+		}
+	}
 
-  return nil,false
+	return nil, false
 }
 
 // Nil error = successful
 func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
-  booking, err := b.getBooking(id)
+	booking, err := b.getBooking(id)
 
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 
-  offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
-  if offsetDate.Hour > 24 || offsetDate.Hour < 0 {
-    return errors.New("bookings cannot be updated to another day")
-  }
+	offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
+	if offsetDate.Hour > 24 || offsetDate.Hour < 0 {
+		return errors.New("bookings cannot be updated to another day")
+	}
 
-  var s,e *Date
+	var s, e *Date
 
-  if math.Signbit(float64(offset)) {
+	if math.Signbit(float64(offset)) {
 
-    s, err = booking.Start.Minus(offsetDate)
+		s, err = booking.Start.Minus(offsetDate)
 
-    if err != nil {
-      return err
-    }
+		if err != nil {
+			return err
+		}
 
+		e, err = booking.End.Minus(offsetDate)
 
-    e, err = booking.End.Minus(offsetDate)
+		if err != nil {
+			return err
+		}
 
-    if err != nil {
-      return err
-    }
+	} else {
+		s, err = booking.Start.Plus(offsetDate)
 
-  }else{
-    s, err = booking.Start.Plus(offsetDate)
+		if err != nil {
+			return err
+		}
 
-    if err != nil {
-      return err
-    }
+		e, err = booking.End.Plus(offsetDate)
 
-    e, err = booking.End.Plus(offsetDate)
+		if err != nil {
+			return err
+		}
+	}
 
-    if err != nil {
-      return err
-    }
-  }
+	// Create booking object to check for conflict
+	obj := Booking{
+		BookerName:     booking.BookerName,
+		ConfirmationID: booking.ConfirmationID,
+		Start:          *s,
+		End:            *e,
+		Fac:            booking.Fac,
+	}
 
-  // Create booking object to check for conflict
-  obj := Booking{
-    BookerName: booking.BookerName,
-    ConfirmationID: booking.ConfirmationID,
-    Start: *s,
-    End: *e,
-    Fac: booking.Fac,
-  }
+	cbk, status := b.CheckForConflict(&obj)
 
-  cbk, status := b.CheckForConflict(&obj)
+	if status {
+		return errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]", s.String(), e.String(), cbk.Start.String(), cbk.End.String()))
+	}
 
-  if status {
-    return errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]",s.String(),e.String(),cbk.Start.String(),cbk.End.String()))
-  }
+	booking.Start = *s
+	booking.End = *e
 
-  booking.Start = *s
-  booking.End = *e
+	sortBooking(b, booking.Start)
+	GetManager().Broadcast(booking.Fac, UpdateBooking, b)
 
-  sortBooking(b, booking.Start)
-  GetManager().Broadcast(booking.Fac, UpdateBooking, b)
-
-  return nil
-
-}
-
-func (b *BookingManager) UpdateBookingDuration(id string, offset int) error{
-
-  booking, err := b.getBooking(id)
-
-  if err != nil {
-    return err
-  }
-
-  offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
-  if offsetDate.Hour > 24 || offsetDate.Hour < 0 {
-    return errors.New("bookings cannot be updated to another day")
-  }
-
-  var s,e *Date
-
-  if math.Signbit(float64(offset)) {
-
-    e, err = booking.End.Minus(offsetDate)
-
-    if err != nil {
-      return err
-    }
-
-  }else{
-
-    e, err = booking.End.Plus(offsetDate)
-
-    if err != nil {
-      return err
-    }
-  }
-
-  // If start is not less than end this duration cannot be used
-  if !booking.Start.LessThan(*e){
-    return errors.New("Start time is not less than End time")
-  }
-
-  // Create booking object to check for conflict
-  obj := Booking{
-    BookerName: booking.BookerName,
-    ConfirmationID: booking.ConfirmationID,
-    Start: booking.Start,
-    End: *e,
-    Fac: booking.Fac,
-  }
-
-  cbk, status := b.CheckForConflict(&obj)
-
-  if status {
-    return errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]",s.String(),e.String(),cbk.Start.String(),cbk.End.String()))
-  }
-
-  booking.End = *e
-
-  sortBooking(b, booking.Start)
-
-  // Sorting is not necessary here as the array was sorted in the first place
-
-  return nil
+	return nil
 
 }
 
-func (b *BookingManager) RemoveBooking(id string) error{
+func (b *BookingManager) UpdateBookingDuration(id string, offset int) error {
 
-  for _, x := range b.BookingList {
-    for idx, v := range x {
-      if v.ConfirmationID == id {
-        d:=v.Start.Day
-        GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
-        b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d],idx)
-        return nil
-      }
-    }
-  }
+	booking, err := b.getBooking(id)
 
-  // Sorting is not necessary here as the array was sorted in the first place
-  return errors.New("Invalid booking ID (" + id + ")")
+	if err != nil {
+		return err
+	}
+
+	offsetDate := MinutesToDate(booking.Start.Day, Abs(offset))
+	if offsetDate.Hour > 24 || offsetDate.Hour < 0 {
+		return errors.New("bookings cannot be updated to another day")
+	}
+
+	var s, e *Date
+
+	if math.Signbit(float64(offset)) {
+
+		e, err = booking.End.Minus(offsetDate)
+
+		if err != nil {
+			return err
+		}
+
+	} else {
+
+		e, err = booking.End.Plus(offsetDate)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	// If start is not less than end this duration cannot be used
+	if !booking.Start.LessThan(*e) {
+		return errors.New("Start time is not less than End time")
+	}
+
+	// Create booking object to check for conflict
+	obj := Booking{
+		BookerName:     booking.BookerName,
+		ConfirmationID: booking.ConfirmationID,
+		Start:          booking.Start,
+		End:            *e,
+		Fac:            booking.Fac,
+	}
+
+	cbk, status := b.CheckForConflict(&obj)
+
+	if status {
+		return errors.New(fmt.Sprintf("Booking duration [%s => %s] causes conflict with [%s => %s]", s.String(), e.String(), cbk.Start.String(), cbk.End.String()))
+	}
+
+	booking.End = *e
+
+	sortBooking(b, booking.Start)
+
+	// Sorting is not necessary here as the array was sorted in the first place
+
+	return nil
+
+}
+
+func (b *BookingManager) RemoveBooking(id string) error {
+
+	for _, x := range b.BookingList {
+		for idx, v := range x {
+			if v.ConfirmationID == id {
+				d := v.Start.Day
+				GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
+				b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d], idx)
+				return nil
+			}
+		}
+	}
+
+	// Sorting is not necessary here as the array was sorted in the first place
+	return errors.New("Invalid booking ID (" + id + ")")
 
 }

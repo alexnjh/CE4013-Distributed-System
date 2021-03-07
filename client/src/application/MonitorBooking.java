@@ -120,25 +120,29 @@ public class MonitorBooking {
             ProgressForm pForm = new ProgressForm();
 
             // Send message to server and wait for reply
-            Task<Void> task = new Task<>() {
+            Task<Integer> task = new Task<>() {
                 @Override
-                public Void call() {
-
+                public Integer call() {
                     // Generate bytes
+                    int port = 1337;
 
                     // Create booking request
                     MonitorRequest req = new MonitorRequest(fac, submitMonitorDura);
 
                     updateProgress(1, 10);
+
                     try {
-                        reply = conn.sendMessage(req.Marshal());
+                        Object[] repObj = conn.sendMessageRetPort(req.Marshal());
+                        reply = (ReplyMessage) repObj[0];
+                        port = (int) repObj[1];
+                        System.out.println("yargae" + port);
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         System.out.println(e.toString());
                     }
 
                     updateProgress(10, 10);
-                    return null;
+                    return port;
                 }
             };
 
@@ -160,10 +164,10 @@ public class MonitorBooking {
                     alert2.setHeaderText(null);
                     alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
                     alert2.showAndWait();
-                } else if (reply.getType().equals("Confirm")) {
+                } else if (reply.getType().equals("Availability")) {
                     // Else show the users and the monitoring people
-                    // TODO: Monitor receive
-                    startMonitor(fac, submitMonitorDura, conn);
+                    AvailabilityReply a = new AvailabilityReply(reply.getPayload());
+                    startMonitor(fac, submitMonitorDura, conn, a, (Integer) event.getSource().getValue());
                 }
                 MenuScene.showScene(stage, conn, name);
             });
@@ -228,12 +232,14 @@ public class MonitorBooking {
         return new HBox(t1, new Label(" hr "), t2, new Label(" min "), t3, new Label(" sec"));
     }
 
-    public static void startMonitor(String facName, long duration, Connection conn) {
+    private static HBox boxUse;
+
+    public static void startMonitor(String facName, long duration, Connection conn, AvailabilityReply a, int listenPort) {
         Stage vMonitor = new Stage();
         vMonitor.initModality(Modality.APPLICATION_MODAL);
         vMonitor.setTitle("Monitoring: " + facName);
         vMonitor.setMinHeight(400);
-        vMonitor.setMaxWidth(400);
+        vMonitor.setMaxWidth(600);
 
         final long tillTime = (duration * 1000) + System.currentTimeMillis();
 
@@ -247,6 +253,11 @@ public class MonitorBooking {
         Label tm = new Label();
         tm.setText("Time Remaining: " + convertSecondsToHumanReadable(duration));
 
+        Label action = new Label();
+        action.setText("Last Action: Listening for changes");
+
+        refresh(a);
+
         GridPane layout = new GridPane();
         layout.setMinSize(400, 400);
         layout.setPadding(new Insets(10, 10, 10, 10));
@@ -255,6 +266,8 @@ public class MonitorBooking {
 
         layout.add(info, 0, 1);
         layout.add(tm, 0, 2);
+        layout.add(action, 0, 3);
+        layout.add(boxUse, 0, 5);
 
         Scene scene = new Scene(layout);
         vMonitor.setScene(scene);
@@ -266,16 +279,17 @@ public class MonitorBooking {
             protected Task<ReplyMessage> createTask() {
                 return new Task<>() {
                     @Override
-                    protected ReplyMessage call() throws Exception {
+                    protected ReplyMessage call() {
                         ReplyMessage monReply = null;
                         try {
-                            System.out.println("Listening...");
-                            monReply = conn.listen();
+//                            System.out.println("Listening...");
+                            monReply = conn.listen(listenPort);
                             this.succeeded();
                         } catch (SocketTimeoutException e) {
                             System.out.println("No reply. This is not an error. Continue monitor");
                             return null;
                         } catch (IOException e) {
+                            System.out.println("[ERR] Cannot listen on port " + listenPort);
                             e.printStackTrace();
                             return null;
                         }
@@ -292,6 +306,13 @@ public class MonitorBooking {
             ReplyMessage monReply = (ReplyMessage) event.getSource().getValue();
             if (monReply != null) {
                 System.out.println(monReply.getType());
+                if (monReply.getType().equals("MonAvailability")) {
+                    AvailabilityReply aUpdate = new AvailabilityReply(monReply.getPayload(), true);
+                    layout.getChildren().remove(boxUse);
+                    action.setText("Last Action: " + aUpdate.getLastAct());
+                    refresh(aUpdate);
+                    layout.add(boxUse, 0, 5);
+                }
             } else {
                 System.out.println("Timeout");
             }
@@ -310,7 +331,7 @@ public class MonitorBooking {
                 }
                 Platform.runLater(() -> {
                     if (!listenSvc.isRunning()) {
-                        System.out.println("Starting to listen");
+                        //System.out.println("Starting to listen");
                         listenSvc.start();
                     }
                 });
@@ -320,6 +341,31 @@ public class MonitorBooking {
                 Platform.runLater(() -> tm.setText("Time Remaining: " + convertSecondsToHumanReadable(dura)));
             }
         }, 0, 1000);
+    }
+
+    private static void refresh(AvailabilityReply a) {
+        boxUse = new HBox();
+        for(Day b : Day.values()) {
+            if (a.getDateRanges(b) != null  && a.getDateRanges(b).length > 0) {
+                TitledPane tempPane = new TitledPane(b.name() , generateList(a.getDateRanges(b)));
+                tempPane.setCollapsible(false);
+                boxUse.getChildren().add(tempPane);
+            }
+        }
+    }
+
+    private static Label generateList(DateRange[] d) {
+        String temp = "";
+
+        for(DateRange b : d) {
+            temp = temp+b.toString()+'\n';
+        }
+
+        System.out.println(temp);
+
+        Label label = new Label(temp);
+
+        return label;
     }
 
     private static String convertSecondsToHumanReadable(long seconds) {

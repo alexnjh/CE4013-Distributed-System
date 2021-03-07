@@ -43,7 +43,40 @@ public class Connection {
 		// Close the socket
 		socket.close();
 		return unpack(raw);
+	}
 
+	public Object[] sendMessageRetPort(byte[] data) throws IOException{
+
+		DatagramSocket socket;
+
+		InetAddress ip = InetAddress.getByName(hostname);
+
+
+		// This receive the return message from the server
+		byte[] buffer = new byte[1024];
+
+		// Send datagram
+		socket = new DatagramSocket();
+		DatagramPacket request = new DatagramPacket(data,data.length,ip,portnumber);
+		socket.send(request);
+
+
+		// Receive reply
+		DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
+		socket.receive(reply);
+
+		// Unpack the payload
+		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+
+		// Generate out
+		Object[] ret = new Object[2];
+		ret[0] = unpack(raw);
+		ret[1] = socket.getLocalPort();
+
+		// Close the socket
+		socket.close();
+
+		return ret;
 	}
 
 	/**
@@ -52,8 +85,9 @@ public class Connection {
 	 * @return reply message
 	 * @throws IOException I/O error
 	 */
-	public ReplyMessage listen() throws IOException {
-		DatagramSocket socket = new DatagramSocket();
+	public ReplyMessage listen(int port) throws IOException {
+		System.out.println("Listening on " + port);
+		DatagramSocket socket = new DatagramSocket(port);
 
 		byte[] buffer = new byte[1024];
 
@@ -61,13 +95,18 @@ public class Connection {
 		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 		socket.setSoTimeout(5000); // 5 seconds timeout
 
-		socket.receive(reply);
-		// Unpack the payload
-		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+		try {
+			socket.receive(reply);
+			// Unpack the payload
+			byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+			return unpack(raw);
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			// Close the socket
+			socket.close();
+		}
 
-		// Close the socket
-		socket.close();
-		return unpack(raw);
 	}
 	
 	private ReplyMessage unpack(byte[] data) {

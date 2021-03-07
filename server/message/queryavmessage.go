@@ -1,8 +1,8 @@
 package message
 
-import(
-  "server/facility"
+import (
   "server/booking"
+  "server/facility"
   "server/messagesocket"
 )
 
@@ -39,7 +39,6 @@ func MarshalQueryAvailabilityMsg(raw [][]booking.DateRange, dname []booking.Day)
   hdr := messagesocket.CreateQueryFacilityAvailabilityHeader(uint16(len(payload)))
   return append(hdr, payload...),nil
 }
-
 
 func UnmarshalQueryAvailabilityMsg(data []byte) (QueryAvailabilityMessage,error){
 

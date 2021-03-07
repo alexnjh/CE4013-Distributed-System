@@ -225,11 +225,8 @@ public class QueryAvailabilityScene {
 	}
 	
 	public static Label generateList(DateRange[] d) {
-		
-		
 		String temp = "";
 
-        
 	    for(DateRange b : d) {
 	    	temp = temp+b.toString()+'\n';	
 	    }
@@ -239,7 +236,6 @@ public class QueryAvailabilityScene {
         Label label = new Label(temp);
 	    
 		return label;
-		
 	}
 }
 	    

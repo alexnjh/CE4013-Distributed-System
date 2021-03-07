@@ -171,11 +171,20 @@ func startRun(bm *booking.BookingManager) {
 				errMsg := message.NewErrorMessage(err.Error())
 				msg.Reply(errMsg.Marshal())
 			} else {
-				fmt.Println(bk) // TODO Debug
-				monMsg := message.NewConfirmMessage("Monitoring")
 				mm := booking.GetManager()
 				mm.AddIP(msg, bk.Duration, facility.Facility(bk.FacilityName))
-				msg.Reply(monMsg.Marshal())
+				// Send initial query availability
+				days := []booking.Day{booking.Monday, booking.Tuesday, booking.Wednesday, booking.Thursday, booking.Friday, booking.Saturday, booking.Sunday}
+				obj := bm.GetAvailableDates(facility.Facility(bk.FacilityName), days...)
+				byteArr, err := message.MarshalQueryAvailabilityMsg(obj, days)
+
+				if err != nil {
+					fmt.Printf("%s\n", err.Error())
+					errMsg := message.NewErrorMessage(err.Error())
+					msg.Reply(errMsg.Marshal())
+				} else {
+					msg.Reply(byteArr)
+				}
 			}
 		default:
 			fmt.Println("Unimplemented")
