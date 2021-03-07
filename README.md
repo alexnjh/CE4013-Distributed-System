@@ -1,6 +1,7 @@
 # CE4013-Distributed-System
 
-[![GoLang Server CI](https://github.com/alexnjh/CE4013-Distributed-System/workflows/GoLang%20Server%20CI/badge.svg)](https://github.com/alexnjh/CE4013-Distributed-System/actions?query=workflow%3A%22GoLang+Server+CI%22)
+[![GoLang Server CI](https://github.com/alexnjh/CE4013-Distributed-System/workflows/GoLang%20Server%20CI/badge.svg)](https://github.com/alexnjh/CE4013-Distributed-System/actions?query=workflow%3A%22GoLang+Server+CI%22) 
+[![Java Client CI](https://github.com/alexnjh/CE4013-Distributed-System/actions/workflows/client.yml/badge.svg)](https://github.com/alexnjh/CE4013-Distributed-System/actions/workflows/client.yml)
 
 ### :grey_exclamation: Prerequisites
 1. Go installed
