@@ -163,6 +163,9 @@ func startRun(bm *booking.BookingManager) {
             }
           }
 		default:
+			fmt.Println("Unimplemented")
+			errMsg := message.NewErrorMessage("Unimplemented Function (" + msg.Type + ")")
+			msg.Reply(errMsg.Marshal())
 		}
 	}
 }
