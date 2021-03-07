@@ -280,6 +280,9 @@ public class MonitorBooking {
                 return new Task<>() {
                     @Override
                     protected ReplyMessage call() {
+                        if (this.isCancelled()) {
+                            return null;
+                        }
                         ReplyMessage monReply = null;
                         try {
 //                            System.out.println("Listening...");
@@ -338,6 +341,20 @@ public class MonitorBooking {
 
                 long curTime = System.currentTimeMillis();
                 long dura = (tillTime - curTime)/1000;
+                // Check if dura is 0 or negative
+                if (dura <= 0) {
+                    // Cancel
+                    System.out.println("Stopping job");
+                    Platform.runLater(() -> {
+                        listenSvc.cancel();
+                        tm.setText("Stopping...");
+                        listenSvc.reset();
+                        tm.setText("Stopped Listening");
+                        info.setText("No longer monitoring " + facName + " for " + df.format(cal.getTime()));
+                        System.out.println("Stopped");
+                        countdown.cancel();
+                    });
+                }
                 Platform.runLater(() -> tm.setText("Time Remaining: " + convertSecondsToHumanReadable(dura)));
             }
         }, 0, 1000);

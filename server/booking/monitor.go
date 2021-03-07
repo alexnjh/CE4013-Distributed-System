@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net"
-	"server/availability"
 	"server/facility"
 	"server/messagesocket"
 	"time"
@@ -74,10 +73,10 @@ func (mgmt *MonitoringManager) PrintMonitoring() {
 	fmt.Println("==========================================")
 }
 
-func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType string, bm *BookingManager) {
+func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType string, bm *BookingManager, name string) {
 	mgmt.CheckExpiry() // Remove expired listeners
 
-	blastMsg := fmt.Sprintf("Booking %s for %s", delType, facility)
+	blastMsg := fmt.Sprintf("Booking %s for %s by %s", delType, facility, name)
 	fmt.Println(blastMsg)
 
 	days := []Day{Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
@@ -100,21 +99,6 @@ func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType str
 	}
 
 	mgmt.BroadcastUsingMsgList(marshalled, messageList)
-}
-
-func GetFacilityAvailability(facility facility.Facility, bm *BookingManager) []availability.Availability {
-	dates := bm.GetAvailableDates(facility, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
-	availArr := make([]availability.Availability, 0)
-
-	for _, a := range dates {
-		for _, v := range a {
-			availStr := fmt.Sprintf("%d_%d,%d-%d,%d", v.Start.Day, v.Start.Hour, v.Start.Minute, v.End.Hour, v.End.Minute)
-			avail := availability.New(availStr)
-
-			availArr = append(availArr, avail)
-		}
-	}
-	return availArr
 }
 
 func (mgmt *MonitoringManager) BroadcastUsingMsgList(data []byte, list []messagesocket.Message){

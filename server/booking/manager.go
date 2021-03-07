@@ -139,7 +139,7 @@ func (b *BookingManager) AddBooking(
 
 	sortBooking(b, start)
 
-	GetManager().Broadcast(f, CreateBooking, b)
+	GetManager().Broadcast(f, CreateBooking, b, name)
 
 	return &obj, nil
 
@@ -230,7 +230,7 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
 	booking.End = *e
 
 	sortBooking(b, booking.Start)
-	GetManager().Broadcast(booking.Fac, UpdateBooking, b)
+	GetManager().Broadcast(booking.Fac, UpdateBooking, b, booking.BookerName)
 
 	return nil
 
@@ -304,7 +304,7 @@ func (b *BookingManager) RemoveBooking(id string) error {
 		for idx, v := range x {
 			if v.ConfirmationID == id {
 				d := v.Start.Day
-				GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b)
+				GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b, b.BookingList[d][idx].BookerName)
 				b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d], idx)
 				return nil
 			}
