@@ -18,7 +18,7 @@ public class Header {
 	}
 	
 	public static byte[] CreateRemoveBookingHeader(int datalength) {
-		String header = "0000"+String.format("%04X", datalength+11)+"0A416464426F6F6B696E67";
+		String header = "0000"+String.format("%04X", datalength+14)+"0D44656c657465426f6f6b696e67";
 		return Helper.hexStringToByteArray(header);
 	}
 	

@@ -35,7 +35,7 @@ private static ReplyMessage reply;
 		TextField id = new TextField();
 		GridPane.setConstraints(id, 1, 0);
 		
-		Button rbutton = new Button("Checking");
+		Button rbutton = new Button("Delete");
 		Button cancel = new Button("Cancel");
 		
 		HBox.setMargin(conId, new Insets(0, 10, 0, 0));
@@ -57,9 +57,9 @@ private static ReplyMessage reply;
 				
 								
 				if(id.getText().isEmpty()) {
-					
 					alert.setContentText("Invalid Confirmation ID");
 					alert.showAndWait();
+					return;
 				}
 		    	//sent the request to the server           	
 		    	ProgressForm pForm = new ProgressForm();
@@ -70,11 +70,13 @@ private static ReplyMessage reply;
 	                public Void call() throws InterruptedException {
 	                	
 	                	// remove booking request
-	                	RemoveRequest req = new RemoveRequest(id.getText());
+	                	RemoveRequest req = new RemoveRequest(cid);
+						System.out.println("Request booking removal for " + cid);;
 	                	
 	                	updateProgress(1, 10);
 	                	try {
 							reply = conn.sendMessage(req.Marshal());
+							System.out.println("Await reply");
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							System.out.println(e.toString());
@@ -106,11 +108,14 @@ private static ReplyMessage reply;
 					Alert alert2 = new Alert(AlertType.INFORMATION);
 					alert2.setTitle("Remove Request");
 					alert2.setHeaderText(null);
-					alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
+					String replyId = new String(reply.getPayload(), StandardCharsets.UTF_8);
+					alert2.setContentText("Booking successfully deleted!\n\nRef: " + replyId);
 					alert2.showAndWait();	
             	}	
 		      	MenuScene.showScene(stage, conn, name);
 	      });
+				Thread thread = new Thread(task);
+				thread.start();
 	     }
 	 });
 		    	

@@ -316,6 +316,6 @@ func (b *BookingManager) RemoveBooking(id string) error{
   }
 
   // Sorting is not necessary here as the array was sorted in the first place
-  return errors.New("Invalid booking ID")
+  return errors.New("Invalid booking ID (" + id + ")")
 
 }
