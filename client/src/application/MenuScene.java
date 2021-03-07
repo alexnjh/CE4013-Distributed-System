@@ -43,7 +43,7 @@ public class MenuScene {
 		view.setOnAction(e -> ViewBooking.showScene(stage, conn, name));
 		change.setOnAction(e->UpdateBooking.showScene(stage, conn, name));
 		query.setOnAction(e->QueryAvailabilityScene.showScene(stage, conn, name));
-		//		monitor.setOnAction(e -> window.setScene(bookFacility));
+		monitor.setOnAction(e -> MonitorBooking.showScene(stage, conn, name));
 		
 		create.setMaxWidth(Double.MAX_VALUE);
 		remove.setMaxWidth(Double.MAX_VALUE);

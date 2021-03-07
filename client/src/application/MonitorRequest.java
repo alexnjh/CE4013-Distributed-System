@@ -1,39 +1,30 @@
 package application;
 
-public class MonitorRequest implements RequestMessage{
+public class MonitorRequest implements RequestMessage {
 
-	// booker name length (1 byte) | booker name (x bytes) | start date/time (7 bytes) | end date/time (7 bytes) | facility name length (1 byte) | facility name (x bytes)
-		private String name,facname;
-		private Date sdate,edate;
-		
+    // duration (8 bytes) | facility (x bytes)
+    private String facname;
+    private long duration;
 
-		MonitorRequest(String n, String f, Date s, Date e){
-			this.name = n;
-			this.facname = f;
-			this.sdate = s;
-			this.edate = e;
-		}
-		
-		
-		@Override
-		public byte[] Marshal() {
 
-			Integer nameLength = name.length();
-			Integer facLength = facname.length();
-			
-			byte[] payload = Helper.ConcatByteArray(new byte[] {nameLength.byteValue()},name.getBytes());
-			payload = Helper.ConcatByteArray(payload,sdate.getBytes());
-			payload = Helper.ConcatByteArray(payload,edate.getBytes());
-			payload = Helper.ConcatByteArray(payload,new byte[] {facLength.byteValue()});
-			payload = Helper.ConcatByteArray(payload,facname.getBytes());
-			
-			byte[] header = Header.CreateMonitorBookingHeader(payload.length);
-			
-			byte[] finalPayload = Helper.ConcatByteArray(header,payload);
-			
-			return finalPayload;
-		}
+    MonitorRequest(String f, long duration) {
+        this.facname = f;
+        this.duration = duration;
+    }
 
-	}
+
+    @Override
+    public byte[] Marshal() {
+
+        byte[] payload = Helper.longToBytes(duration);
+        payload = Helper.ConcatByteArray(payload, facname.getBytes());
+        payload = Helper.ConcatByteArray(payload, facname.getBytes());
+        byte[] header = Header.CreateMonitorBookingHeader(payload.length);
+        byte[] finalPayload = Helper.ConcatByteArray(header, payload);
+
+        return finalPayload;
+    }
+
+}
 
 

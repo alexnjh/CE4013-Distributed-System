@@ -1,5 +1,6 @@
 package application;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class Helper {
@@ -49,5 +50,24 @@ public class Helper {
 	{
 	    for(boolean b : array) if(b) return false;
 	    return true;
+	}
+
+	public static boolean isFalse(boolean... array)
+	{
+		for(boolean b : array) if(b) return false;
+		return true;
+	}
+
+	public static byte[] longToBytes(long x) {
+		ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+		buffer.putLong(x);
+		return buffer.array();
+	}
+
+	public static long bytesToLong(byte[] bytes) {
+		ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+		buffer.put(bytes);
+		buffer.flip();//need flip
+		return buffer.getLong();
 	}
 }
