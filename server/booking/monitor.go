@@ -58,6 +58,7 @@ func (mgmt *MonitoringManager) AddIP(msgObj messagesocket.Message, duration int6
 		Interval: dura,
 		Facility: facility,
 	})
+	fmt.Printf("Added %s to monitor list to monitor %s for %d seconds", msgObj.Addr.String(), facility, duration)
 }
 
 func (mgmt *MonitoringManager) PrintMonitoring() {

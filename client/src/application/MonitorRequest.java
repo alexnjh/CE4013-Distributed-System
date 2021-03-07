@@ -18,7 +18,6 @@ public class MonitorRequest implements RequestMessage {
 
         byte[] payload = Helper.longToBytes(duration);
         payload = Helper.ConcatByteArray(payload, facname.getBytes());
-        payload = Helper.ConcatByteArray(payload, facname.getBytes());
         byte[] header = Header.CreateMonitorBookingHeader(payload.length);
         byte[] finalPayload = Helper.ConcatByteArray(header, payload);
 

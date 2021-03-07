@@ -18,6 +18,9 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class MonitorBooking {
 
@@ -155,6 +158,7 @@ public class MonitorBooking {
                 } else if (reply.getType().equals("Confirm")) {
                     // Else show the users and the monitoring people
                     // TODO: Monitor receive
+                    startMonitor(fac, submitMonitorDura);
                 }
                 MenuScene.showScene(stage, conn, name);
             });
@@ -219,5 +223,58 @@ public class MonitorBooking {
         return new HBox(t1, new Label(" hr "), t2, new Label(" min "), t3, new Label(" sec"));
     }
 
+    public static void startMonitor(String facName, long duration) {
+        Stage vMonitor = new Stage();
+        vMonitor.initModality(Modality.APPLICATION_MODAL);
+        vMonitor.setTitle("Monitoring: " + facName);
+        vMonitor.setMinHeight(400);
+        vMonitor.setMaxWidth(400);
+
+        long tillTime = (duration * 1000) + System.currentTimeMillis();
+
+        DateFormat df = new SimpleDateFormat("dd:MM:yy HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(tillTime);
+
+        Label info = new Label();
+        info.setText("Currently monitoring " + facName + " for " + df.format(cal.getTime()));
+
+        Label tm = new Label();
+        tm.setText("Time Remaining: " + convertSecondsToHumanReadable(duration));
+
+        GridPane layout = new GridPane();
+        layout.setMinSize(400, 400);
+        layout.setPadding(new Insets(10, 10, 10, 10));
+        layout.setVgap(5);
+        layout.setHgap(5);
+
+        layout.add(info, 0, 1);
+        layout.add(tm, 0, 2);
+
+        Scene scene = new Scene(layout);
+        vMonitor.setScene(scene);
+        vMonitor.showAndWait();
+    }
+
+    private static String convertSecondsToHumanReadable(long seconds) {
+        long sec, min = 0, hour = 0;
+        System.out.println(seconds);
+        sec = seconds%60;
+        long remain = seconds/60;
+        System.out.println(remain);
+        if (remain > 0) {
+            min = remain%60;
+            remain /= 60;
+        }
+        System.out.println(remain);
+        if (remain > 0) hour = remain;
+
+
+        String res = "";
+        if (hour > 0) res += hour + " hours ";
+        if (min > 0) res += min + " mins ";
+        res += sec + " secs";
+        return res;
+    }
 
 }

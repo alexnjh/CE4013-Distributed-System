@@ -24,7 +24,7 @@ public class Header {
 	
 	
 	public static byte[] CreateMonitorBookingHeader(int datalength) {
-		String header = "0000"+String.format("%04X", datalength+11)+"0A416464426F6F6B696E67";
+		String header = "0000"+String.format("%04X", datalength+13)+"0C53746172744d6f6e69746f72";
 		return Helper.hexStringToByteArray(header);
 	}
 	

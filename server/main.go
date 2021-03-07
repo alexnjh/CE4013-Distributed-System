@@ -162,6 +162,21 @@ func startRun(bm *booking.BookingManager) {
               fmt.Printf("%s\n", hex.EncodeToString(repMsg.Marshal())) // Print message data
             }
           }
+
+		case "StartMonitor":
+			bk, err := message.UnmarshalStartMonitoringMsg(msg.Data)
+
+			if err != nil {
+				fmt.Printf("%s\n", err.Error())
+				errMsg := message.NewErrorMessage(err.Error())
+				msg.Reply(errMsg.Marshal())
+			} else {
+				fmt.Println(bk) // TODO Debug
+				monMsg := message.NewConfirmMessage("Monitoring")
+				mm := booking.GetManager()
+				mm.AddIP(msg, bk.Duration, facility.Facility(bk.FacilityName))
+				msg.Reply(monMsg.Marshal())
+			}
 		default:
 			fmt.Println("Unimplemented")
 			errMsg := message.NewErrorMessage("Unimplemented Function (" + msg.Type + ")")
