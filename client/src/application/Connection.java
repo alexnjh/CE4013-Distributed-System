@@ -1,9 +1,7 @@
 package application;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -46,7 +44,30 @@ public class Connection {
 		socket.close();
 		return unpack(raw);
 
-		
+	}
+
+	/**
+	 * Listen to socket for 5 seconds
+	 * throws {@link SocketTimeoutException} if no reply after 5 seconds. This is not an error
+	 * @return reply message
+	 * @throws IOException I/O error
+	 */
+	public ReplyMessage listen() throws IOException {
+		DatagramSocket socket = new DatagramSocket();
+
+		byte[] buffer = new byte[1024];
+
+		// Listen
+		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+		socket.setSoTimeout(5000); // 5 seconds timeout
+
+		socket.receive(reply);
+		// Unpack the payload
+		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+
+		// Close the socket
+		socket.close();
+		return unpack(raw);
 	}
 	
 	private ReplyMessage unpack(byte[] data) {

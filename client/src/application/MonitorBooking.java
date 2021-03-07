@@ -1,6 +1,8 @@
 package application;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -17,10 +19,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MonitorBooking {
 
@@ -158,7 +163,7 @@ public class MonitorBooking {
                 } else if (reply.getType().equals("Confirm")) {
                     // Else show the users and the monitoring people
                     // TODO: Monitor receive
-                    startMonitor(fac, submitMonitorDura);
+                    startMonitor(fac, submitMonitorDura, conn);
                 }
                 MenuScene.showScene(stage, conn, name);
             });
@@ -223,14 +228,14 @@ public class MonitorBooking {
         return new HBox(t1, new Label(" hr "), t2, new Label(" min "), t3, new Label(" sec"));
     }
 
-    public static void startMonitor(String facName, long duration) {
+    public static void startMonitor(String facName, long duration, Connection conn) {
         Stage vMonitor = new Stage();
         vMonitor.initModality(Modality.APPLICATION_MODAL);
         vMonitor.setTitle("Monitoring: " + facName);
         vMonitor.setMinHeight(400);
         vMonitor.setMaxWidth(400);
 
-        long tillTime = (duration * 1000) + System.currentTimeMillis();
+        final long tillTime = (duration * 1000) + System.currentTimeMillis();
 
         DateFormat df = new SimpleDateFormat("dd:MM:yy HH:mm:ss");
         Calendar cal = Calendar.getInstance();
@@ -253,20 +258,78 @@ public class MonitorBooking {
 
         Scene scene = new Scene(layout);
         vMonitor.setScene(scene);
-        vMonitor.showAndWait();
+        vMonitor.setAlwaysOnTop(true);
+        vMonitor.show();
+
+        final Service<ReplyMessage> listenSvc = new Service<>() {
+            @Override
+            protected Task<ReplyMessage> createTask() {
+                return new Task<>() {
+                    @Override
+                    protected ReplyMessage call() throws Exception {
+                        ReplyMessage monReply = null;
+                        try {
+                            System.out.println("Listening...");
+                            monReply = conn.listen();
+                            this.succeeded();
+                        } catch (SocketTimeoutException e) {
+                            System.out.println("No reply. This is not an error. Continue monitor");
+                            return null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                        return monReply;
+                    }
+                };
+            }
+        };
+
+        listenSvc.setOnSucceeded(event -> {
+            if (event.getSource().getValue() == null || !(event.getSource().getValue() instanceof ReplyMessage)) {
+                System.out.println("Err getting reply");
+            }
+            ReplyMessage monReply = (ReplyMessage) event.getSource().getValue();
+            if (monReply != null) {
+                System.out.println(monReply.getType());
+            } else {
+                System.out.println("Timeout");
+            }
+            listenSvc.reset();
+        });
+
+        Timer countdown = new Timer();
+        countdown.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (!vMonitor.isShowing()) {
+                    // Window closed
+                    System.out.println("Cancelling as window is closed");
+                    countdown.cancel();
+                    return;
+                }
+                Platform.runLater(() -> {
+                    if (!listenSvc.isRunning()) {
+                        System.out.println("Starting to listen");
+                        listenSvc.start();
+                    }
+                });
+
+                long curTime = System.currentTimeMillis();
+                long dura = (tillTime - curTime)/1000;
+                Platform.runLater(() -> tm.setText("Time Remaining: " + convertSecondsToHumanReadable(dura)));
+            }
+        }, 0, 1000);
     }
 
     private static String convertSecondsToHumanReadable(long seconds) {
         long sec, min = 0, hour = 0;
-        System.out.println(seconds);
         sec = seconds%60;
         long remain = seconds/60;
-        System.out.println(remain);
         if (remain > 0) {
             min = remain%60;
             remain /= 60;
         }
-        System.out.println(remain);
         if (remain > 0) hour = remain;
 
 
