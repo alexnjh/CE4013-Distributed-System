@@ -186,6 +186,46 @@ func startRun(bm *booking.BookingManager) {
 					msg.Reply(byteArr)
 				}
 			}
+		case "UpdateBooking":
+          bk, err := message.UnmarshalUpdateBookingMsg(msg.Data)
+
+          if err != nil {
+            fmt.Printf("%s\n", err.Error())
+            errMsg := message.NewErrorMessage(err.Error())
+            msg.Reply(errMsg.Marshal())
+          } else {
+            err := bm.UpdateBooking(bk.ConfirmationID,bk.Offset)
+            if err != nil {
+              // Invalid booking
+              errMsg := message.NewErrorMessage(err.Error())
+              msg.Reply(errMsg.Marshal())
+            } else {
+              // If successful send back confirmation ID
+              repMsg := message.NewConfirmMessage(bk.ConfirmationID)
+              msg.Reply(repMsg.Marshal())
+              fmt.Printf("%s\n", hex.EncodeToString(repMsg.Marshal())) // Print message data
+            }
+          }
+		case "UpdateDuration":
+          bk, err := message.UnmarshalUpdateDurationMsg(msg.Data)
+
+          if err != nil {
+            fmt.Printf("%s\n", err.Error())
+            errMsg := message.NewErrorMessage(err.Error())
+            msg.Reply(errMsg.Marshal())
+          } else {
+            err := bm.UpdateBookingDuration(bk.ConfirmationID,bk.Offset)
+            if err != nil {
+              // Invalid booking
+              errMsg := message.NewErrorMessage(err.Error())
+              msg.Reply(errMsg.Marshal())
+            } else {
+              // If successful send back confirmation ID
+              repMsg := message.NewConfirmMessage(bk.ConfirmationID)
+              msg.Reply(repMsg.Marshal())
+              fmt.Printf("%s\n", hex.EncodeToString(repMsg.Marshal())) // Print message data
+            }
+          }
 		default:
 			fmt.Println("Unimplemented")
 			errMsg := message.NewErrorMessage("Unimplemented Function (" + msg.Type + ")")

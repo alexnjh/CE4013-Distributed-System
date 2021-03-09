@@ -70,4 +70,9 @@ public class Helper {
 		buffer.flip();//need flip
 		return buffer.getLong();
 	}
+	public static byte[] intToBytes(int x) {
+		ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+		buffer.putInt(x);
+		return buffer.array();
+	}
 }

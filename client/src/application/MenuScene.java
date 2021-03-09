@@ -41,7 +41,7 @@ public class MenuScene {
 		create.setOnAction(e -> NewBookingScene.showScene(stage, conn, name));
 		remove.setOnAction(e ->RemoveBooking.showScene(stage, conn,name));
 		view.setOnAction(e -> ViewBooking.showScene(stage, conn, name));
-		change.setOnAction(e->UpdateBooking.showScene(stage, conn, name));
+		change.setOnAction(e->UpdateBooking.showUpdateMenu(stage, conn, name));
 		query.setOnAction(e->QueryAvailabilityScene.showScene(stage, conn, name));
 		monitor.setOnAction(e -> MonitorBooking.showScene(stage, conn, name));
 		

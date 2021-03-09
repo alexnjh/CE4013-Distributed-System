@@ -12,29 +12,17 @@ public class UpdateRequest implements RequestMessage{
 		
 		
 		@Override
-		public byte[] Marshal() {
-
-			Integer nameLength = id.length();
-			Integer offsetLength = String.valueOf(offset).length();
-			
-			byte[] payload = Helper.ConcatByteArray(new byte[] {nameLength.byteValue()},id.getBytes());
-			payload = Helper.ConcatByteArray(payload,new byte[] {offsetLength.byteValue()});
+public byte[] Marshal() {
 			
 			
-			payload = Helper.ConcatByteArray(payload,toByteArray(offset));
+			byte[] payload = Helper.intToBytes(offset);
+			payload = Helper.ConcatByteArray(id.getBytes(),payload);
 			
-			byte[] header = Header.UpdateBookingHeader(payload.length);
+			byte[] header = Header.CreateUpdateDurationHeader(payload.length);
 			
 			byte[] finalPayload = Helper.ConcatByteArray(header,payload);
 			
 			return finalPayload;
-		}
-		public byte[] toByteArray(int value) {
-		    return new byte[] {
-		            (byte)(value >> 24),
-		            (byte)(value >> 16),
-		            (byte)(value >> 8),
-		            (byte)value};
 		}
 
 	}
