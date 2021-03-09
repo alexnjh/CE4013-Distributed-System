@@ -69,7 +69,7 @@ func NewDateFromByteArray(str []byte) (*Date,error) {
     return nil,errors.New("Invalid date given")
   }
 
-  if m < 0 || h > 59 {
+  if m < 0 || m > 59 {
     return nil,errors.New("Invalid date given")
   }
 
