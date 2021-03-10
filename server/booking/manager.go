@@ -305,8 +305,8 @@ func (b *BookingManager) RemoveBooking(id string) error {
 		for idx, v := range x {
 			if v.ConfirmationID == id {
 				d := v.Start.Day
-				GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b, b.BookingList[d][idx].BookerName)
 				b.BookingList[d] = RemoveElementFromSlice(b.BookingList[d], idx)
+				GetManager().Broadcast(b.BookingList[d][idx].Fac, DeleteBooking, b, b.BookingList[d][idx].BookerName)
 				return nil
 			}
 		}
