@@ -25,6 +25,7 @@ const (
 	CreateBooking string = "created"
 	UpdateBooking = "updated"
 	DeleteBooking = "deleted"
+	UpdateDurationBooking = "duration updated"
 )
 
 var globalMonitor *MonitoringManager

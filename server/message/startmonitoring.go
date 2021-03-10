@@ -17,7 +17,11 @@ func UnmarshalStartMonitoringMsg(data []byte) (StartMonitoringMessage,error) {
 
 	var duration int64
 	buf := bytes.NewBuffer(data[:8])
-	binary.Read(buf, binary.BigEndian, &duration)
+	err := binary.Read(buf, binary.BigEndian, &duration)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	return StartMonitoringMessage{
 		Duration: duration,

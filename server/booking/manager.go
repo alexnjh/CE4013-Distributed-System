@@ -291,6 +291,7 @@ func (b *BookingManager) UpdateBookingDuration(id string, offset int) error {
 	booking.End = *e
 
 	sortBooking(b, booking.Start)
+	GetManager().Broadcast(booking.Fac, UpdateDurationBooking, b, booking.BookerName)
 
 	// Sorting is not necessary here as the array was sorted in the first place
 
