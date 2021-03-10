@@ -55,7 +55,7 @@ public class UpdateBooking {
 		
 		
 		//time the user wants to increase or decrease
-		String offset[]= {"Advanced","Postpone"};
+		String offset[]= {"BringForward","Postpone"};
 		ComboBox dif = new ComboBox(FXCollections.observableArrayList(offset));
 		dif.getSelectionModel().selectFirst();
 		
@@ -120,7 +120,8 @@ public class UpdateBooking {
 	                	
 	                	updateProgress(1, 10);
 	                	try {
-	                	
+	                		System.out.println(req.Marshal());
+							System.out.println("updating....");
 							reply = conn.sendMessage(req.Marshal());
 							
 						} catch (IOException e) {

@@ -29,12 +29,13 @@ public class Header {
 	}
 	
 	public static byte[] CreateUpdateBookingHeader(int datalength) {
-		String header = "0000"+String.format("%04X", datalength+10)+"0A557064617465426f6f6b0a";
+		String header = "0000"+String.format("%04X", datalength+14)+"0D557064617465426f6f6b696e67";
 		return Helper.hexStringToByteArray(header);
 	}
 	
 	public static byte[] CreateUpdateDurationHeader(int datalength) {
-		String header = "0000"+String.format("%04X", datalength+14)+"0D5570646174654475726174696f6e0a";
+		String header = "0000"+String.format("%04X", datalength+15)+"0E5570646174654475726174696f6e";
+		System.out.println(header);
 		return Helper.hexStringToByteArray(header);
 	}
 	

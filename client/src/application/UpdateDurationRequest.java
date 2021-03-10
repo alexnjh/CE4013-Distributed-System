@@ -15,7 +15,8 @@ public class UpdateDurationRequest implements RequestMessage{
 				
 				
 				byte[] payload = Helper.intToBytes(offset);
-				payload = Helper.ConcatByteArray(id.getBytes(),payload);
+				
+				payload = Helper.ConcatByteArray(payload,id.getBytes());
 				
 				byte[] header = Header.CreateUpdateDurationHeader(payload.length);
 				

@@ -12,13 +12,13 @@ public class UpdateRequest implements RequestMessage{
 		
 		
 		@Override
-public byte[] Marshal() {
+		public byte[] Marshal() {
 			
 			
 			byte[] payload = Helper.intToBytes(offset);
-			payload = Helper.ConcatByteArray(id.getBytes(),payload);
+			payload = Helper.ConcatByteArray(payload,id.getBytes());
 			
-			byte[] header = Header.CreateUpdateDurationHeader(payload.length);
+			byte[] header = Header.CreateUpdateBookingHeader(payload.length);
 			
 			byte[] finalPayload = Helper.ConcatByteArray(header,payload);
 			

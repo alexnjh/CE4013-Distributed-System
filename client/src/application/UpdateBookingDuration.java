@@ -54,14 +54,15 @@ public class UpdateBookingDuration {
 		
 		//time the user wants to increase or decrease
 		String offset[]= {"Increase","Decrease"};
-		ComboBox dif = new ComboBox(FXCollections.observableArrayList(offset));
+		ComboBox plusminus = new ComboBox(FXCollections.observableArrayList(offset));
+		plusminus.getSelectionModel().selectFirst();
 		
 		TextField hr = new TextField("0");
 		TextField min = new TextField("0");
 		Label startLabel = new Label("Time : ");
 		
 		updateDur.add(startLabel, 3,1);
-		updateDur.add(new HBox(startLabel, dif),0, 2);
+		updateDur.add(new HBox(startLabel, plusminus),0, 2);
 		
 		Label time = new Label("Hr::Min "); 
 		HBox.setMargin(time, new Insets(0, 10, 0, 0));
@@ -95,7 +96,7 @@ public class UpdateBookingDuration {
 			if(!id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
 										
 				//sent the request to the server with the id
-	    		if(dif.getValue().toString().equalsIgnoreCase("increase")) {
+	    		if(plusminus.getValue().toString().equalsIgnoreCase("increase")) {
 	    			//offset will be addition to previous
 	    			// sent request to server
 	    			offset = mins + (hrs*60);
@@ -103,7 +104,7 @@ public class UpdateBookingDuration {
 	       		}else{
 	    		//offset will be minus
 	       			offset = (-1)*(mins + (hrs*60)); 
-	       			System.out.println("bye"+offset);
+	       			System.out.println("decrease "+offset);
 	       		}
 	    	
 	    		ProgressForm pForm = new ProgressForm();
