@@ -10,10 +10,10 @@ public class RemoveRequest implements RequestMessage {
     }
 
     @Override
-    public byte[] Marshal() {
+    public byte[] Marshal(int invocation) {
 
         byte[] payload = cid.getBytes();
-        byte[] header = Header.CreateRemoveBookingHeader(payload.length);
+        byte[] header = Header.CreateRemoveBookingHeader(payload.length, invocation);
         byte[] finalPayload = Helper.ConcatByteArray(header, payload);
 
         return finalPayload;

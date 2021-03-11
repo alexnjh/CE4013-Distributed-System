@@ -17,7 +17,7 @@ public class BookingRequest implements RequestMessage{
 	
 	
 	@Override
-	public byte[] Marshal() {
+	public byte[] Marshal(int invocation) {
 
 		Integer nameLength = name.length();
 		Integer facLength = facname.length();
@@ -28,7 +28,7 @@ public class BookingRequest implements RequestMessage{
 		payload = Helper.ConcatByteArray(payload,new byte[] {facLength.byteValue()});
 		payload = Helper.ConcatByteArray(payload,facname.getBytes());
 		
-		byte[] header = Header.CreateAddBookingHeader(payload.length);
+		byte[] header = Header.CreateAddBookingHeader(payload.length, invocation);
 		
 		byte[] finalPayload = Helper.ConcatByteArray(header,payload);
 		

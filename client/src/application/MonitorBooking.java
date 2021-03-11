@@ -31,7 +31,7 @@ public class MonitorBooking {
 
     private static ReplyMessage reply;
 
-    public static void showScene(Stage stage, Connection conn, String name) {
+    public static void showScene(Stage stage, Connection conn, String name, int invocation) {
         // Instantiate a new Grid Pane
         GridPane mpane = new GridPane();
 
@@ -132,7 +132,7 @@ public class MonitorBooking {
                     updateProgress(1, 10);
 
                     try {
-                        Object[] repObj = conn.sendMessageRetPort(req.Marshal());
+                        Object[] repObj = conn.sendMessageRetPort(req.Marshal(invocation));
                         reply = (ReplyMessage) repObj[0];
                         port = (int) repObj[1];
                         System.out.println("yargae" + port);

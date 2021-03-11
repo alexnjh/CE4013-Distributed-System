@@ -21,7 +21,7 @@ public class RemoveBooking {
     private static ReplyMessage reply;
 
 
-    public static void showScene(Stage stage, Connection conn, String name) {
+    public static void showScene(Stage stage, Connection conn, String name, int invocation) {
         GridPane rBook = new GridPane();
         rBook.setPadding(new Insets(10, 10, 10, 10));
         rBook.setVgap(8);// set vertical gap
@@ -72,9 +72,9 @@ public class RemoveBooking {
 
                     updateProgress(1, 10);
                     try {
-                        reply = conn.sendMessage(req.Marshal());
+                        reply = conn.sendMessage(req.Marshal(invocation));
                         System.out.println("Await reply");
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         // Generic error block
                         System.out.println(e.toString());
                     }

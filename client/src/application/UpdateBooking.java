@@ -31,7 +31,7 @@ public class UpdateBooking {
 	
 	private static ReplyMessage reply;
 	//modify by offset , postpone or advanced the timing, bring forward/backward for the timing
-	public static void showScene(Stage stage, Connection conn, String name)
+	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 		GridPane updateBook = new GridPane();
 		updateBook.setPadding(new Insets(10, 10, 10, 10));
@@ -120,11 +120,11 @@ public class UpdateBooking {
 	                	
 	                	updateProgress(1, 10);
 	                	try {
-	                		System.out.println(req.Marshal());
+	                		System.out.println(req.Marshal(invocation));
 							System.out.println("updating....");
-							reply = conn.sendMessage(req.Marshal());
+							reply = conn.sendMessage(req.Marshal(invocation));
 							
-						} catch (IOException e) {
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							System.out.println(e.toString());
 						}
@@ -198,7 +198,7 @@ public class UpdateBooking {
 			return new HBox(t1, stdiv, t2);
 		}
 	
-	public static void showUpdateMenu(Stage stage, Connection conn, String name) {
+	public static void showUpdateMenu(Stage stage, Connection conn, String name, int invocation) {
 		//Stage stage, Connection conn, String name
 		TilePane menuUpdate = new TilePane();
 		menuUpdate.setAlignment(Pos.CENTER);
@@ -209,8 +209,8 @@ public class UpdateBooking {
 		Button offset  = new Button("Advance/Postpone Booking");
 		Button cancel = new Button("Cancel");
 		
-		duration.setOnAction(e-> UpdateBookingDuration.showScene(stage, conn, name));
-		offset.setOnAction(e-> UpdateBooking.showScene(stage, conn, name));
+		duration.setOnAction(e-> UpdateBookingDuration.showScene(stage, conn, name, invocation));
+		offset.setOnAction(e-> UpdateBooking.showScene(stage, conn, name, invocation));
 		cancel.setOnAction(e -> MenuScene.showScene(stage, conn, name));
 		menuUpdate.getChildren().addAll(duration, offset, cancel);
 		

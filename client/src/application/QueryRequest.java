@@ -16,7 +16,7 @@ public class QueryRequest {
 		this.facname = facname;
 	}
 	
-	public byte[] Marshal() {
+	public byte[] Marshal(int invocation) {
 		
 		Integer facLength = facname.length();
 		
@@ -53,7 +53,7 @@ public class QueryRequest {
 		}
 		
 		payload = Helper.ConcatByteArray(payload,new byte[] {d});
-		byte[] header = Header.CreateQueryAvailabilityHeader(payload.length);
+		byte[] header = Header.CreateQueryAvailabilityHeader(payload.length, invocation);
 		byte[] finalPayload = Helper.ConcatByteArray(header,payload);
 		return finalPayload;
 		

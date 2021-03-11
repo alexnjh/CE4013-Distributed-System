@@ -30,7 +30,7 @@ public class ViewBooking {
 	private static ReplyMessage reply;
 	
 	
-	public static void showScene(Stage stage, Connection conn, String name){
+	public static void showScene(Stage stage, Connection conn, String name, int invocation){
 		GridPane vBook = new GridPane();
 		vBook.setPadding(new Insets(10, 10, 10, 10));
 		vBook.setVgap(8);// set vertical gap
@@ -84,8 +84,8 @@ public class ViewBooking {
 	                	
 	                	updateProgress(1, 10);
 	                	try {
-							reply = conn.sendMessage(req.Marshal());
-						} catch (IOException e) {
+							reply = conn.sendMessage(req.Marshal(invocation));
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							System.out.println(e.toString());
 						}

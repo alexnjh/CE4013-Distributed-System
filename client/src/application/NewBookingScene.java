@@ -37,7 +37,7 @@ public class NewBookingScene {
 	private static ReplyMessage reply;
 	
 	
-	public static void showScene(Stage stage, Connection conn, String name)
+	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 	    // Instantiate a new Grid Pane
 	    GridPane pane = new GridPane();
@@ -153,8 +153,8 @@ public class NewBookingScene {
 		                	
 		                	updateProgress(1, 10);
 		                	try {
-								reply = conn.sendMessage(req.Marshal());
-							} catch (IOException e) {
+								reply = conn.sendMessage(req.Marshal(invocation));
+							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								System.out.println(e.toString());
 							}

@@ -104,7 +104,7 @@ func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType str
 
 func (mgmt *MonitoringManager) BroadcastUsingMsgList(data []byte, list []messagesocket.Message){
 	for _, a := range list {
-		fmt.Printf("Broacasting update to: %s\n", a.Addr.String())
+		fmt.Printf("Broadcasting update to: %s\n", a.Addr.String())
 		a.Reply(data)
 	}
 }

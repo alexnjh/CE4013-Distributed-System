@@ -11,14 +11,14 @@ public class UpdateDurationRequest implements RequestMessage{
 	
 	
 	@Override
-	public byte[] Marshal() {
+	public byte[] Marshal(int invocation) {
 				
 				
 				byte[] payload = Helper.intToBytes(offset);
 				
 				payload = Helper.ConcatByteArray(payload,id.getBytes());
 				
-				byte[] header = Header.CreateUpdateDurationHeader(payload.length);
+				byte[] header = Header.CreateUpdateDurationHeader(payload.length, invocation);
 				
 				byte[] finalPayload = Helper.ConcatByteArray(header,payload);
 				

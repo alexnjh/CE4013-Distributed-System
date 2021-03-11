@@ -14,11 +14,11 @@ public class MonitorRequest implements RequestMessage {
 
 
     @Override
-    public byte[] Marshal() {
+    public byte[] Marshal(int invocation) {
 
         byte[] payload = Helper.longToBytes(duration);
         payload = Helper.ConcatByteArray(payload, facname.getBytes());
-        byte[] header = Header.CreateMonitorBookingHeader(payload.length);
+        byte[] header = Header.CreateMonitorBookingHeader(payload.length,invocation);
         byte[] finalPayload = Helper.ConcatByteArray(header, payload);
 
         return finalPayload;

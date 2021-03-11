@@ -2,7 +2,7 @@ package application;
 
 public interface RequestMessage {
 
-		public byte[] Marshal();
+		public byte[] Marshal(int invocation);
 		
 		
 }

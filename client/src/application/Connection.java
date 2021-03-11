@@ -3,7 +3,9 @@ package application;
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 public class Connection {
 	
@@ -17,36 +19,56 @@ public class Connection {
 	}
 	
 	// Send Message
-	public ReplyMessage sendMessage(byte[] data) throws IOException{
+	public ReplyMessage sendMessage(byte[] data) throws Exception{
 		
-		DatagramSocket socket;
+		
+		for (int i = 0; i < 5; i++){        // recieve data until timeout
+            try {
+            	
+        		System.out.println(Helper.bytesToHex(data));
+        		System.out.println(Helper.encryptThisToSHA1(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
+        		
+        		DatagramSocket socket;
 
-		InetAddress ip = InetAddress.getByName(hostname);
-			
-			
-		// This receive the return message from the server
-		byte[] buffer = new byte[1024];
-			
-		// Send datagram
-		socket = new DatagramSocket();
-		DatagramPacket request = new DatagramPacket(data,data.length,ip,portnumber);
-		socket.send(request);
-			
-			
-		// Receive reply
-		DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
-		socket.receive(reply);
-			
-		// Unpack the payload
-		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+        		InetAddress ip = InetAddress.getByName(hostname);
+        			
+        			
+        		// This receive the return message from the server
+        		byte[] buffer = new byte[1024];
+        			
+        		// Send datagram
+        		socket = new DatagramSocket();
+        		DatagramPacket request = new DatagramPacket(data,data.length,ip,portnumber);
+        		socket.send(request);			
+        		
+        		// Set time out of 1 sec
+        		socket.setSoTimeout(1000);
+        		
+        		// Receive reply
+        		DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
+        		socket.receive(reply);
+        		
+        		// Unpack the payload
+        		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+        		
+        		// Close the socket
+        		socket.close();
+        		return unpack(raw);
+            }
+            catch (SocketTimeoutException e) {
+                // timeout exception.
+                System.out.println("Timeout reached!!! Retrying again");
+            }
+        }
 		
-		// Close the socket
-		socket.close();
-		return unpack(raw);
+		throw new Exception("Failed to send packet");
+		
+		
+			
 	}
 
 	public Object[] sendMessageRetPort(byte[] data) throws IOException{
-
+		
 		DatagramSocket socket;
 
 		InetAddress ip = InetAddress.getByName(hostname);

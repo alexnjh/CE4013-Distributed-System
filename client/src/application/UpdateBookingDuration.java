@@ -30,7 +30,7 @@ public class UpdateBookingDuration {
 	private static ReplyMessage reply;
 	//modify by duration increase or decrease the duration of the booking,
 	
-	public static void showScene(Stage stage, Connection conn, String name)
+	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 		GridPane updateDur = new GridPane();
 		updateDur.setPadding(new Insets(10, 10, 10, 10));
@@ -121,8 +121,8 @@ public class UpdateBookingDuration {
 	                	updateProgress(1, 10);
 	                	try {
 	                		
-							reply = conn.sendMessage(req.Marshal());
-						} catch (IOException e) {
+							reply = conn.sendMessage(req.Marshal(invocation));
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							System.out.println(e.toString());
 						}

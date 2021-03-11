@@ -8,9 +8,9 @@ public class ViewRequest{
 		this.id = conid;
 	}
 
-	public byte[] Marshal() {
+	public byte[] Marshal(int invocation) {
 		byte[] payload = id.getBytes();
-		byte[] header = Header.CreateViewBookingHeader(payload.length);
+		byte[] header = Header.CreateViewBookingHeader(payload.length, invocation);
 		byte[] finalPayload = Helper.ConcatByteArray(header,payload);
 		return finalPayload;
 	}

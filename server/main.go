@@ -215,8 +215,8 @@ func startRun(bm *booking.BookingManager) {
             msg.Reply(errMsg.Marshal())
           } else {
 			fmt.Printf("%v\n",bk.Offset)
-			fmt.Printf("%v\n",len(bk.ConfirmationID))	
-			
+			fmt.Printf("%v\n",len(bk.ConfirmationID))
+
             err := bm.UpdateBookingDuration(bk.ConfirmationID,bk.Offset)
             if err != nil {
               // Invalid booking

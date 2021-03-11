@@ -126,7 +126,7 @@ func (d *Date) Plus(v Date) (*Date,error){
     minute = minute % 60
   }
 
-  if hour > 24 {
+  if hour > 24 || (hour == 24 && minute != 0){
     return nil,errors.New("Date offset overflows to next day")
   }
 
@@ -144,32 +144,36 @@ func (d *Date) Minus(v Date) (*Date,error){
     return nil,errors.New("Invalid Day, Day should be the same")
   }
 
-  if d.Hour > v.Hour {
+  hour := d.Hour
+  min := d.Minute
 
-    hour := d.Hour
+  if hour > v.Hour {
     hour -= v.Hour
-
-    min := d.Minute
-
+  }else if hour < v.Hour {
+    return nil,errors.New("Hour lesser than input hour")
+  }else{
     if min < v.Minute {
-      hour-=1
-      min+=60
+      return nil,errors.New("Minute lesser than input minute")
+    }else{
+      hour -= v.Hour
     }
-
-    min -= v.Minute
-
-    if hour < 0 {
-      return nil,errors.New("Date offset overflows to previous day")
-    }
-
-    return &Date{
-      Day: d.Day,
-      Hour: hour,
-      Minute: min,
-    },nil
-
   }
 
-  return nil,errors.New("Hour lesser than input hour")
+  if min < v.Minute {
+    hour-=1
+    min+=60
+  }
+
+  min -= v.Minute
+
+  if hour < 0 {
+    return nil,errors.New("Date offset overflows to previous day")
+  }
+
+  return &Date{
+    Day: d.Day,
+    Hour: hour,
+    Minute: min,
+  },nil
 
 }
