@@ -151,3 +151,4 @@ jobs:
         with:
           name: client-win
           path: ./package
+          retention-days: 7
