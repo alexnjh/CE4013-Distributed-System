@@ -34,9 +34,15 @@ public class UpdateBooking {
 	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 		GridPane updateBook = new GridPane();
-		updateBook.setPadding(new Insets(10, 10, 10, 10));
-		updateBook.setVgap(8);// set vertical gap
+		
+	    // Position the pane at the center of the screen, both vertically and horizontally
+		updateBook.setAlignment(Pos.CENTER);
+	    
+	    // Set the horizontal gap between columns
 		updateBook.setHgap(10);
+
+	    // Set the vertical gap between rows
+		updateBook.setVgap(10);
 		
 		
 		Label headerLabel = new Label("Advanced/Postpone Booking");
@@ -45,39 +51,34 @@ public class UpdateBooking {
 	    GridPane.setHalignment(headerLabel, HPos.CENTER);
 	    GridPane.setMargin(headerLabel, new Insets(20, 0,20,0));
 		
+	    // ID Input
 		Label conId = new Label("Enter ID: ");
-		
-		// text field
 		TextField id = new TextField();
-		
-		HBox.setMargin(conId, new Insets(0, 10, 0, 0));
-		updateBook.add(new HBox(conId, id), 0,1);
-		
+		updateBook.add(conId, 0,1);
+		updateBook.add(id, 1,1);
 		
 		//time the user wants to increase or decrease
-		String offset[]= {"BringForward","Postpone"};
-		ComboBox dif = new ComboBox(FXCollections.observableArrayList(offset));
+		Label opMode = new Label("Operation: ");
+		String op[]= {"BringForward","Postpone"};
+		ComboBox dif = new ComboBox(FXCollections.observableArrayList(op));
 		dif.getSelectionModel().selectFirst();
+		updateBook.add(opMode, 0,2);
+		updateBook.add(dif, 1,2);
 		
+		// Offset time
 		TextField hr = new TextField("0");
 		TextField min = new TextField("0");
 		Label startLabel = new Label("Offset Time : ");
+		updateBook.add(startLabel, 0,3);
+		updateBook.add(createHrPane(hr,min), 1,3);
 		
-		updateBook.add(startLabel, 3,1);
-		updateBook.add(new HBox(startLabel, dif),0, 2);
-		
-		Label time = new Label("Hr::Min "); 
-		HBox.setMargin(time, new Insets(0, 10, 0, 0));
-		updateBook.add(new HBox(time, createHrPane(hr,min)), 0, 3);
-		
-		
-		Button updateBut = new Button("Checking");
+		Button updateBut = new Button("Submit");
 		Button cancel = new Button("Cancel");
 		
-		HBox.setMargin(updateBut, new Insets(0, 10, 0, 0));
-	    updateBook.add(new HBox(updateBut, cancel), 0, 6);
-		
 		updateBook.setAlignment(Pos.CENTER);
+	    HBox.setMargin(updateBut, new Insets(0, 10, 0, 0));
+		updateBook.add(new HBox(updateBut, cancel), 1,4);
+		
 		
 	    updateBut.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
@@ -94,7 +95,20 @@ public class UpdateBooking {
 				hrs = Integer.parseInt(hr.getText());
 				mins = Integer.parseInt(min.getText());
 				
-						//if all input is empty			
+				
+				if (hrs > 24 || hrs < 0){
+					alert.setContentText("Invalid starting hour value");
+					alert.showAndWait();
+					return;
+				}else if (mins > 59 || mins < 0){
+					alert.setContentText("Invalid starting minute value");
+					alert.showAndWait();
+					return;
+				}
+				
+				
+				
+			//if all input is empty			
 			//if(id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
 			if(!id.getText().isEmpty() &&Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {							
 				//sent the request to the server with the id
@@ -142,8 +156,14 @@ public class UpdateBooking {
 	            task.setOnSucceeded(event -> {
 	            	pForm.getDialogStage().close();
 	            	
+	            	if (reply == null) {
+						Alert alert2 = new Alert(AlertType.ERROR);
+						alert2.setTitle("Internal Error");
+						alert2.setHeaderText(null);
+						alert2.setContentText("Internal error, please try again");
+						alert2.showAndWait();
+	            	}
 	            	
-	            System.out.println(reply.getType());
 	            	// If reply is an error show the error
 	            if (reply.getType().equals("Error")) {
 						Alert alert2 = new Alert(AlertType.ERROR);
@@ -152,21 +172,12 @@ public class UpdateBooking {
 						alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
 						alert2.showAndWait();		
 	            }else if (reply.getType().equals("Confirm")){
-	            		// Else show the confirmation ID
-	            	TextArea textArea = new TextArea(new String(reply.getPayload(), StandardCharsets.UTF_8));
-            		textArea.setEditable(false);
-            		textArea.setWrapText(true);
-            		GridPane gridPane = new GridPane();
-            		gridPane.setMaxWidth(Double.MAX_VALUE);
-            		gridPane.add(textArea, 0, 0);
-            		
-            		// Else show the confirmation ID
-					Alert alert2 = new Alert(AlertType.INFORMATION);
-					alert2.setTitle("Booking Confirmation ID");
-					alert2.getDialogPane().setContent(gridPane);
-					alert2.setHeaderText(null);
-					
-					alert2.showAndWait();	
+	                    Alert alert2 = new Alert(AlertType.INFORMATION);
+	                    alert2.setTitle("Update Booking Request");
+	                    alert2.setHeaderText(null);
+	                    String replyId = new String(reply.getPayload(), StandardCharsets.UTF_8);
+	                    alert2.setContentText("Booking updated succesfully!\n\nRef: " + replyId);
+	                    alert2.showAndWait();	
 	            }
 	            MenuScene.showScene(stage, conn, name);
 	            });
@@ -191,12 +202,13 @@ public class UpdateBooking {
 	}
 	private static HBox createHrPane(TextField t1, TextField t2) {
 			
-		    t1.setMaxWidth(60);
-		    t2.setMaxWidth(60);
-		    Label stdiv = new Label(" - ");
+		    t1.setMaxWidth(40);
+		    t2.setMaxWidth(40);
+		    Label stdiv = new Label(" hr ");
+		    Label endiv = new Label(" min ");
 	
-			return new HBox(t1, stdiv, t2);
-		}
+			return new HBox(t1, stdiv, t2, endiv);
+	}
 	
 	public static void showUpdateMenu(Stage stage, Connection conn, String name, int invocation) {
 		//Stage stage, Connection conn, String name

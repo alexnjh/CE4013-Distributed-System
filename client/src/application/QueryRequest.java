@@ -16,9 +16,15 @@ public class QueryRequest {
 		this.facname = facname;
 	}
 	
-	public byte[] Marshal(int invocation) {
+	public byte[] Marshal(int invocation) throws Exception {
 		
 		Integer facLength = facname.length();
+		
+		// Fac name should be at most 255 characters
+		if (facLength > 255) {
+			throw new Exception("Facility name contain too many characters (Max: 255 chars)");
+		}
+		
 		
 		byte[] payload = Helper.ConcatByteArray(new byte[] {facLength.byteValue()},facname.getBytes());
 		

@@ -58,6 +58,7 @@ public class QueryAvailabilityScene {
 	    pane.add(facLabel, 0,1);
 		ComboBox dropFac = new ComboBox(FXCollections.observableArrayList(Facilities.facilities));
 		dropFac.getSelectionModel().selectFirst();//get the first value in the combobox
+		dropFac.setEditable(true);
 	    pane.add(dropFac, 1,1);
 	    
 	    // Day selection
@@ -175,7 +176,13 @@ public class QueryAvailabilityScene {
 		            	pForm.getDialogStage().close();
 		            	
 		            	
-		            	System.out.println(reply.getType());
+		            	if (reply == null) {
+							Alert alert2 = new Alert(AlertType.ERROR);
+							alert2.setTitle("Internal Error");
+							alert2.setHeaderText(null);
+							alert2.setContentText("Internal error, please try again");
+							alert2.showAndWait();
+		            	}
 		            	
 		            	// If reply is an error show the error
 		            	if (reply.getType().equals("Error")) {

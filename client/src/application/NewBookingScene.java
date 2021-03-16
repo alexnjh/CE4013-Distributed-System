@@ -64,6 +64,7 @@ public class NewBookingScene {
 	    pane.add(facLabel, 0,1);
 		ComboBox dropFac = new ComboBox(FXCollections.observableArrayList(Facilities.facilities));
 		dropFac.getSelectionModel().selectFirst();//get the first value in the combobox
+		dropFac.setEditable(true);
 	    pane.add(dropFac, 1,1);
 	    
 	    Label dayLabel = new Label("Day : ");
@@ -120,6 +121,32 @@ public class NewBookingScene {
 					endhrs = Integer.parseInt(enhr.getText());
 					endmins = Integer.parseInt(enmin.getText());
 					
+					if (sthrs > 24 || sthrs < 0){
+						alert.setContentText("Invalid starting hour value");
+						alert.showAndWait();
+						return;
+					}else if (endhrs > 24 || endhrs < 0){
+						alert.setContentText("Invalid ending hour value");
+						alert.showAndWait();
+						return;
+					}else if (stmins > 59 || stmins < 0){
+						alert.setContentText("Invalid starting minute value");
+						alert.showAndWait();
+						return;
+					}else if (endmins > 59 || endmins < 0){
+						alert.setContentText("Invalid ending minute value");
+						alert.showAndWait();
+						return;
+					}else if (sthrs == 24 && stmins > 0){
+						alert.setContentText("Invalid starting time");
+						alert.showAndWait();
+						return;
+					}else if (endhrs == 24 && endmins > 0){
+						alert.setContentText("Invalid ending time");
+						alert.showAndWait();
+						return;
+					}
+					
 					
 					//end hrs cannot be smaller than start hrs
 					if((endhrs-sthrs)<0) {
@@ -173,7 +200,13 @@ public class NewBookingScene {
 		            	pForm.getDialogStage().close();
 		            	
 		            	
-		            	System.out.println(reply.getType());
+		            	if (reply == null) {
+							Alert alert2 = new Alert(AlertType.ERROR);
+							alert2.setTitle("Internal Error");
+							alert2.setHeaderText(null);
+							alert2.setContentText("Internal error, please try again");
+							alert2.showAndWait();
+		            	}
 		            	
 		            	// If reply is an error show the error
 		            	if (reply.getType().equals("Error")) {

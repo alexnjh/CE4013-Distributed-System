@@ -57,6 +57,7 @@ public class MonitorBooking {
         mpane.add(facLabel, 0, 1);
         ComboBox dropFac = new ComboBox(FXCollections.observableArrayList(Facilities.facilities));
         dropFac.getSelectionModel().selectFirst();//get the first value in the combobox
+    	dropFac.setEditable(true);
         mpane.add(dropFac, 1, 1);
 
         TextField mhr = new TextField();
@@ -136,7 +137,7 @@ public class MonitorBooking {
                         reply = (ReplyMessage) repObj[0];
                         port = (int) repObj[1];
                         System.out.println("yargae" + port);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         // TODO Auto-generated catch block
                         System.out.println(e.toString());
                     }

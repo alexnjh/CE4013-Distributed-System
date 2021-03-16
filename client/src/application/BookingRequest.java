@@ -17,10 +17,15 @@ public class BookingRequest implements RequestMessage{
 	
 	
 	@Override
-	public byte[] Marshal(int invocation) {
+	public byte[] Marshal(int invocation) throws Exception {
 
 		Integer nameLength = name.length();
 		Integer facLength = facname.length();
+		
+		// Fac name should be at most 255 characters
+		if (facLength > 255) {
+			throw new Exception("Facility name contain too many characters (Max: 255 chars)");
+		}
 		
 		byte[] payload = Helper.ConcatByteArray(new byte[] {nameLength.byteValue()},name.getBytes());
 		payload = Helper.ConcatByteArray(payload,sdate.getBytes());

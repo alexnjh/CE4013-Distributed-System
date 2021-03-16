@@ -91,7 +91,13 @@ public class RemoveBooking {
             task.setOnSucceeded(event -> {
                 pForm.getDialogStage().close();
 
-                System.out.println(reply.getType());
+            	if (reply == null) {
+					Alert alert2 = new Alert(AlertType.ERROR);
+					alert2.setTitle("Internal Error");
+					alert2.setHeaderText(null);
+					alert2.setContentText("Internal error, please try again");
+					alert2.showAndWait();
+            	}
 
                 if (reply.getType().equals("Error")) {
                     Alert alert2 = new Alert(AlertType.ERROR);

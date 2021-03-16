@@ -33,9 +33,15 @@ public class UpdateBookingDuration {
 	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 		GridPane updateDur = new GridPane();
-		updateDur.setPadding(new Insets(10, 10, 10, 10));
-		updateDur.setVgap(8);// set vertical gap
+		
+	    // Position the pane at the center of the screen, both vertically and horizontally
+		updateDur.setAlignment(Pos.CENTER);
+	    
+	    // Set the horizontal gap between columns
 		updateDur.setHgap(10);
+
+	    // Set the vertical gap between rows
+		updateDur.setVgap(10);
 		
 		Label headerLabel = new Label("Increase/Decrease Duration");
 	    headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 24));
@@ -43,39 +49,35 @@ public class UpdateBookingDuration {
 	    GridPane.setHalignment(headerLabel, HPos.CENTER);
 	    GridPane.setMargin(headerLabel, new Insets(20, 0,20,0));
 	    
+	    // ID Input
 		Label conId = new Label("Enter ID: ");
-		
-		// text field
 		TextField id = new TextField();
-		
-		HBox.setMargin(conId, new Insets(0, 10, 0, 0));
-		updateDur.add(new HBox(conId, id), 0,1);
+		updateDur.add(conId, 0,1);
+		updateDur.add(id, 1,1);
 		
 		
 		//time the user wants to increase or decrease
-		String offset[]= {"Increase","Decrease"};
-		ComboBox plusminus = new ComboBox(FXCollections.observableArrayList(offset));
+		Label opMode = new Label("Operation: ");
+		String op[]= {"Increase","Decrease"};
+		ComboBox plusminus = new ComboBox(FXCollections.observableArrayList(op));
 		plusminus.getSelectionModel().selectFirst();
+		updateDur.add(opMode, 0,2);
+		updateDur.add(plusminus, 1,2);
 		
+		// Offset time
 		TextField hr = new TextField("0");
 		TextField min = new TextField("0");
-		Label startLabel = new Label("Time : ");
-		
-		updateDur.add(startLabel, 3,1);
-		updateDur.add(new HBox(startLabel, plusminus),0, 2);
-		
-		Label time = new Label("Hr::Min "); 
-		HBox.setMargin(time, new Insets(0, 10, 0, 0));
-		updateDur.add(new HBox(time, createHrPane(hr,min)), 0, 3);
+		Label startLabel = new Label("Duration : ");
+		updateDur.add(startLabel, 0,3);
+		updateDur.add(createHrPane(hr,min), 1,3);
 		
 		
-		Button updateTime = new Button("Checking");
+		Button updateTime = new Button("Submit");
 		Button cancel = new Button("Cancel");
 		
-		HBox.setMargin(updateTime, new Insets(0, 10, 0, 0));
-		updateDur.add(new HBox(updateTime, cancel), 0, 6);
-		
 		updateDur.setAlignment(Pos.CENTER);
+	    HBox.setMargin(updateTime, new Insets(0, 10, 0, 0));
+	    updateDur.add(new HBox(updateTime, cancel), 1,4);
 		
 	    updateTime.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
@@ -91,6 +93,18 @@ public class UpdateBookingDuration {
 				conID = (String)id.getText();
 				hrs = Integer.parseInt(hr.getText());
 				mins = Integer.parseInt(min.getText());
+				
+				
+				if (hrs > 24 || hrs < 0){
+					alert.setContentText("Invalid starting hour value");
+					alert.showAndWait();
+					return;
+				}else if (mins > 59 || mins < 0){
+					alert.setContentText("Invalid starting minute value");
+					alert.showAndWait();
+					return;
+				}
+				
 				
 						//if all input is empty			
 			if(!id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
@@ -141,32 +155,30 @@ public class UpdateBookingDuration {
 	            	pForm.getDialogStage().close();
 	            	
 	            	
-	            System.out.println(reply.getType());
-	            	// If reply is an error show the error
-	            if (reply.getType().equals("Error")) {
+	            	if (reply == null) {
 						Alert alert2 = new Alert(AlertType.ERROR);
-						alert2.setTitle("Server reply");
+						alert2.setTitle("Internal Error");
 						alert2.setHeaderText(null);
-						alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
-						alert2.showAndWait();		
-	            }else if (reply.getType().equals("Confirm")){
-	            		// Else show the confirmation ID
-	            	TextArea textArea = new TextArea(new String(reply.getPayload(), StandardCharsets.UTF_8));
-            		textArea.setEditable(false);
-            		textArea.setWrapText(true);
-            		GridPane gridPane = new GridPane();
-            		gridPane.setMaxWidth(Double.MAX_VALUE);
-            		gridPane.add(textArea, 0, 0);
-            		
-            		// Else show the confirmation ID
-					Alert alert2 = new Alert(AlertType.INFORMATION);
-					alert2.setTitle("Booking Confirmation ID");
-					alert2.getDialogPane().setContent(gridPane);
-					alert2.setHeaderText(null);
-					
-					alert2.showAndWait();	
-	            }
-	            MenuScene.showScene(stage, conn, name);
+						alert2.setContentText("Internal error, please try again");
+						alert2.showAndWait();
+	            	}
+	            	
+		            	// If reply is an error show the error
+		            if (reply.getType().equals("Error")) {
+							Alert alert2 = new Alert(AlertType.ERROR);
+							alert2.setTitle("Server reply");
+							alert2.setHeaderText(null);
+							alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
+							alert2.showAndWait();		
+		            }else if (reply.getType().equals("Confirm")){
+		                    Alert alert2 = new Alert(AlertType.INFORMATION);
+		                    alert2.setTitle("Update Duration Request");
+		                    alert2.setHeaderText(null);
+		                    String replyId = new String(reply.getPayload(), StandardCharsets.UTF_8);
+		                    alert2.setContentText("Booking duration updated succesfully!\n\nRef: " + replyId);
+		                    alert2.showAndWait();
+		            }
+		            MenuScene.showScene(stage, conn, name);
 	            });
 	            Thread thread = new Thread(task);
 	            thread.start();
@@ -188,13 +200,14 @@ public class UpdateBookingDuration {
 	
 	}
 	private static HBox createHrPane(TextField t1, TextField t2) {
-			
-		    t1.setMaxWidth(60);
-		    t2.setMaxWidth(60);
-		    Label stdiv = new Label(" - ");
-	
-			return new HBox(t1, stdiv, t2);
-		}
+		
+	    t1.setMaxWidth(40);
+	    t2.setMaxWidth(40);
+	    Label stdiv = new Label(" hr ");
+	    Label endiv = new Label(" min ");
+
+		return new HBox(t1, stdiv, t2, endiv);
+}
 }
 
 		

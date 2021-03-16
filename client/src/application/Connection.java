@@ -42,7 +42,7 @@ public class Connection {
         		socket.send(request);			
         		
         		// Set time out of 1 sec
-        		socket.setSoTimeout(1000);
+        		socket.setSoTimeout(500);
         		
         		// Receive reply
         		DatagramPacket reply = new DatagramPacket(buffer,buffer.length);

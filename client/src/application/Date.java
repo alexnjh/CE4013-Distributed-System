@@ -42,11 +42,11 @@ public class Date {
 
 	 @Override
 	 public String toString() { 
-	     return String.format(day + "/" + hour + "/" + minute); 
+	     return String.format("%s, %d:%02d",day,hour,minute); 
 	 } 
 	 
 	 
 	 public String toStringWithoutDay() { 
-	     return String.format(hour + "/" + minute); 
+	     return String.format("%d:%02d",hour,minute); 
 	 } 
 }
