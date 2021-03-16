@@ -1,6 +1,7 @@
 package message
 
 import (
+  "encoding/binary"
   "server/booking"
   "server/facility"
   "server/messagesocket"
@@ -17,19 +18,19 @@ func MarshalQueryAvailabilityMsg(raw [][]booking.DateRange, dname []booking.Day)
 
   for idx, x := range raw {
 
+      b := make([]byte, 2)
+      binary.BigEndian.PutUint16(b, uint16(len(x)))
       payload = append(payload, byte(dname[idx]))
-      payload = append(payload, byte(len(x)))
+      payload = append(payload, b...)
 
       for _, v := range x {
 
-        temp := make([]byte, 6)
+        temp := make([]byte, 4)
 
-        temp[0] = byte(v.Start.Day)
-        temp[1] = byte(v.Start.Hour)
-        temp[2] = byte(v.Start.Minute)
-        temp[3] = byte(v.End.Day)
-        temp[4] = byte(v.End.Hour)
-        temp[5] = byte(v.End.Minute)
+        temp[0] = byte(v.Start.Hour)
+        temp[1] = byte(v.Start.Minute)
+        temp[2] = byte(v.End.Hour)
+        temp[3] = byte(v.End.Minute)
 
         payload = append(payload, temp...)
       }

@@ -78,6 +78,10 @@ public class Helper {
 		buffer.putInt(x);
 		return buffer.array();
 	}
+	public static int twoBytetoInt(byte hb, byte lb) {
+	    ByteBuffer bb = ByteBuffer.wrap(new byte[] {hb, lb});
+	    return bb.getShort(); // Implicitly widened to an int per JVM spec.
+	}
 	
 	public static String encryptThisToSHA1(String input) 
     { 

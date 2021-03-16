@@ -25,9 +25,6 @@ public class Connection {
 		for (int i = 0; i < 5; i++){        // recieve data until timeout
             try {
             	
-        		System.out.println(Helper.bytesToHex(data));
-        		System.out.println(Helper.encryptThisToSHA1(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
-        		
         		DatagramSocket socket;
 
         		InetAddress ip = InetAddress.getByName(hostname);
