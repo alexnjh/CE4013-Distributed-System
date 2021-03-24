@@ -120,6 +120,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
       }
 
       log.Infof("Packet-Received: bytes=%d from=%s\n",n, addr.String())
+      log.Infof("%x\n", buffer[:n])
 
       x,status := checkValidMessage(buffer[:n])
       lengthOfMsg := int(x)
@@ -170,6 +171,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
             }
 
             log.Infof("Packet-Received: bytes=%d from=%s\n",n, addr.String())
+            log.Infof("%x\n", buffer[:n])
 
             if n == remaining {
               data1 = append(data1,buffer[:n]...)

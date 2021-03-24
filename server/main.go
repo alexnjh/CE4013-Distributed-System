@@ -237,6 +237,12 @@ func startRun(bm *booking.BookingManager) {
               fmt.Printf("%s\n", hex.EncodeToString(repMsg.Marshal())) // Print message data
             }
           }
+
+		case "AckMon":
+			fmt.Println("Received acknowledgement")
+			mm := booking.GetManager()
+			mm.MarkSubmit(msg)
+
 		default:
 			fmt.Println("Unimplemented")
 			errMsg := message.NewErrorMessage("Unimplemented Function (" + msg.Type + ")")

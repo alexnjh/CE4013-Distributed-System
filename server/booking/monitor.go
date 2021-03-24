@@ -11,6 +11,9 @@ import (
 
 type MonitoringManager struct {
 	MonitorList []*Monitor
+
+	LastMessageList map[string]*[]byte
+	Start bool
 }
 
 type Monitor struct {
@@ -33,6 +36,8 @@ var globalMonitor *MonitoringManager
 func Init() {
 	globalMonitor = &MonitoringManager{
 		MonitorList: make([]*Monitor, 0),
+		LastMessageList: make(map[string]*[]byte),
+		Start: false,
 	}
 }
 
@@ -42,6 +47,43 @@ func GetManager() *MonitoringManager {
 		Init() // Create monitor
 	}
 	return globalMonitor
+}
+
+func (mgmt *MonitoringManager) MarkSubmit(msgObj messagesocket.Message) {
+	println(mgmt.LastMessageList)
+	mgmt.LastMessageList[msgObj.Addr.String()] = nil
+	delete(mgmt.LastMessageList, msgObj.Addr.String())
+	println(mgmt.LastMessageList)
+	fmt.Printf("[MON] Marked %s as submitted\n", msgObj.Addr.String())
+}
+
+func (mgmt *MonitoringManager) Resend() {
+	fmt.Println("[MON] Resending unacknowledged messages")
+	for _,v := range mgmt.MonitorList {
+		if value, ok := mgmt.LastMessageList[v.Message.Addr.String()]; ok {
+			//do something here
+			if mgmt.LastMessageList[v.Message.Addr.String()] != nil {
+				fmt.Printf("Broadcasting update to: %s\n", v.Message.Addr.String())
+				v.Message.Reply(*value)
+			}
+		}
+	}
+}
+
+func (mgmt *MonitoringManager) goStartCheckingResend() {
+	defer func() {mgmt.Start = false}()
+	mgmt.Start = true
+	for {
+		// Wait 5 seconds
+		time.Sleep(5 * time.Second)
+
+		if len(mgmt.LastMessageList) <= 0 {
+			fmt.Println("Nothing to ack. bye")
+			break
+		}
+
+		mgmt.Resend()
+	}
 }
 
 func (mgmt *MonitoringManager) AddIP(msgObj messagesocket.Message, duration int64, facility facility.Facility) {
@@ -100,10 +142,18 @@ func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType str
 	}
 
 	mgmt.BroadcastUsingMsgList(marshalled, messageList)
+
+	if !mgmt.Start {
+		fmt.Println("Starting resend loop")
+		go mgmt.goStartCheckingResend()
+	} else {
+		fmt.Println("Existing routing ignoring")
+	}
 }
 
 func (mgmt *MonitoringManager) BroadcastUsingMsgList(data []byte, list []messagesocket.Message){
 	for _, a := range list {
+		mgmt.LastMessageList[a.Addr.String()] = &data
 		fmt.Printf("Broadcasting update to: %s\n", a.Addr.String())
 		a.Reply(data)
 	}

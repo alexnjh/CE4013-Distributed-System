@@ -41,6 +41,11 @@ public class Header {
 		System.out.println(header);
 		return Helper.hexStringToByteArray(header);
 	}
+
+	public static byte[] CreateAckHeader(int datalength, int invocation) {
+		String header = String.format("%04X", invocation)+Helper.encryptThisToSHA1(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()))+String.format("%04X", datalength+7)+"0641636b4d6f6e";
+		return Helper.hexStringToByteArray(header);
+	}
 	
 	
 	

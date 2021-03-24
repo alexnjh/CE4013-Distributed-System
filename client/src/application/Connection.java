@@ -20,34 +20,34 @@ public class Connection {
 	
 	// Send Message
 	public ReplyMessage sendMessage(byte[] data) throws Exception{
-		
-		
+
+
 		for (int i = 0; i < 5; i++){        // recieve data until timeout
             try {
-            	
+
         		DatagramSocket socket;
 
         		InetAddress ip = InetAddress.getByName(hostname);
-        			
-        			
+
+
         		// This receive the return message from the server
         		byte[] buffer = new byte[1024];
-        			
+
         		// Send datagram
         		socket = new DatagramSocket();
         		DatagramPacket request = new DatagramPacket(data,data.length,ip,portnumber);
-        		socket.send(request);			
-        		
+        		socket.send(request);
+
         		// Set time out of 1 sec
         		socket.setSoTimeout(500);
-        		
+
         		// Receive reply
         		DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
         		socket.receive(reply);
-        		
+
         		// Unpack the payload
         		byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
-        		
+
         		// Close the socket
         		socket.close();
         		return unpack(raw);
@@ -57,10 +57,10 @@ public class Connection {
                 System.out.println("Timeout reached!!! Retrying again");
             }
         }
-		
+
 		throw new Exception("Failed to send packet");
-		
-		
+
+
 			
 	}
 
@@ -104,7 +104,7 @@ public class Connection {
 	 * @return reply message
 	 * @throws IOException I/O error
 	 */
-	public ReplyMessage listen(int port) throws IOException {
+	public ReplyMessage listen(int port, int invocation) throws IOException {
 		System.out.println("Listening on " + port);
 		DatagramSocket socket = new DatagramSocket(port);
 
@@ -118,9 +118,21 @@ public class Connection {
 			socket.receive(reply);
 			// Unpack the payload
 			byte[] raw = Arrays.copyOfRange(buffer, 0, reply.getLength());
+
+			// Reply ACK
+			AckReply r = new AckReply();
+			byte[] data = r.Marshal(invocation);
+			InetAddress ip = InetAddress.getByName(hostname);
+			DatagramPacket rep = new DatagramPacket(data,data.length,ip,portnumber);
+			socket.send(rep);
+			//sendMessage(data);
+			System.out.println("Replied");
 			return unpack(raw);
 		} catch (IOException e) {
 			throw e;
+		} catch (Exception e) {
+			System.out.println("Err replying");
+			return null;
 		} finally {
 			// Close the socket
 			socket.close();

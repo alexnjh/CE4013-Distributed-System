@@ -168,7 +168,7 @@ public class MonitorBooking {
                 } else if (reply.getType().equals("Availability")) {
                     // Else show the users and the monitoring people
                     AvailabilityReply a = new AvailabilityReply(reply.getPayload());
-                    startMonitor(fac, submitMonitorDura, conn, a, (Integer) event.getSource().getValue());
+                    startMonitor(fac, submitMonitorDura, conn, a, (Integer) event.getSource().getValue(), invocation);
                 }
                 MenuScene.showScene(stage, conn, name);
             });
@@ -235,7 +235,7 @@ public class MonitorBooking {
 
     private static HBox boxUse;
 
-    public static void startMonitor(String facName, long duration, Connection conn, AvailabilityReply a, int listenPort) {
+    public static void startMonitor(String facName, long duration, Connection conn, AvailabilityReply a, int listenPort, int invocation) {
         Stage vMonitor = new Stage();
         vMonitor.initModality(Modality.APPLICATION_MODAL);
         vMonitor.setTitle("Monitoring: " + facName);
@@ -288,7 +288,7 @@ public class MonitorBooking {
                         ReplyMessage monReply = null;
                         try {
 //                            System.out.println("Listening...");
-                            monReply = conn.listen(listenPort);
+                            monReply = conn.listen(listenPort, invocation);
                             this.succeeded();
                         } catch (SocketTimeoutException e) {
                             System.out.println("No reply. This is not an error. Continue monitor");
