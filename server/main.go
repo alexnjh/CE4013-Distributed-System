@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net"
+  "flag"
 	"server/availability"
 	"server/booking"
 	"server/facility"
@@ -14,8 +15,8 @@ import (
 var (
 	actualRun = true
 
-	hostname = "127.0.0.1"
-	hostport = 2222
+  hostname = "127.0.0.1"
+  hostport = 2222
 
 	listofDayNames = []string{
 		"MONDAY",
@@ -39,6 +40,13 @@ var (
 func main() {
 
 	bm := booking.NewGenericBookingManager()
+
+  hostPtr := flag.String("h", "127.0.0.1", "Hostname")
+  portPtr := flag.Int("p", 2222, "Host port")
+  flag.Parse()
+
+  hostname = *hostPtr
+	hostport = *portPtr
 
 	if actualRun {
 		//Uncomment this if receiving messages from client
