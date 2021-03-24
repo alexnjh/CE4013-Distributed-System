@@ -282,6 +282,7 @@ public class MonitorBooking {
                     @Override
                     protected ReplyMessage call() {
                         if (this.isCancelled()) {
+                            System.out.println("Listener cancelled");
                             return null;
                         }
                         ReplyMessage monReply = null;

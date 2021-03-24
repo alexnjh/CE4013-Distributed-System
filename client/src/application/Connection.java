@@ -112,7 +112,7 @@ public class Connection {
 
 		// Listen
 		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-		socket.setSoTimeout(5000); // 5 seconds timeout
+		//socket.setSoTimeout(5000); // 5 seconds timeout
 
 		try {
 			socket.receive(reply);
