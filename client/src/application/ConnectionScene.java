@@ -12,7 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
+//Interface to start the Connecction.
 public class ConnectionScene {
 	
 	public static void showScene(Stage stage)

@@ -4,7 +4,7 @@ public class QueryRequest {
 	
 	private boolean[] day;
 	private String facname;
-	
+	//Query Request Message Format.
 	public QueryRequest(boolean[] day, String facname) throws Exception {
 		
 		
@@ -15,7 +15,7 @@ public class QueryRequest {
 		this.day = day;
 		this.facname = facname;
 	}
-	
+	//Marshal data to byte stream.
 	public byte[] Marshal(int invocation) throws Exception {
 		
 		Integer facLength = facname.length();

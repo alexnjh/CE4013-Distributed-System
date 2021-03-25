@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
-
+//Interface for Monitoring Booking Service.
 public class MonitorBooking {
 
     private static ReplyMessage reply;
@@ -234,7 +234,8 @@ public class MonitorBooking {
     }
 
     private static HBox boxUse;
-
+    
+    //New Interface when the Monitoring Starts 
     public static void startMonitor(String facName, long duration, Connection conn, AvailabilityReply a, int listenPort, int invocation) {
         Stage vMonitor = new Stage();
         vMonitor.initModality(Modality.APPLICATION_MODAL);

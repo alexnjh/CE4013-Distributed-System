@@ -24,12 +24,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
+//Interface for the Update Booking Duration Service.
 public class UpdateBookingDuration {
 	
 	private static ReplyMessage reply;
 	//modify by duration increase or decrease the duration of the booking,
-	
 	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 		GridPane updateDur = new GridPane();
@@ -199,6 +198,7 @@ public class UpdateBookingDuration {
 	       
 	
 	}
+	//Helper for GUI
 	private static HBox createHrPane(TextField t1, TextField t2) {
 		
 	    t1.setMaxWidth(40);

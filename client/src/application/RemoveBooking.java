@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 public class RemoveBooking {
     private static ReplyMessage reply;
 
-
+    //Interface of Remove Booking Service.
     public static void showScene(Stage stage, Connection conn, String name, int invocation) {
         GridPane rBook = new GridPane();
         rBook.setPadding(new Insets(10, 10, 10, 10));

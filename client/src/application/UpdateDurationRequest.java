@@ -1,5 +1,5 @@
 package application;
-
+//Update Duration Request Message.
 public class UpdateDurationRequest implements RequestMessage{
 	private String id;
 	private Integer offset;		
@@ -9,7 +9,7 @@ public class UpdateDurationRequest implements RequestMessage{
 		this.offset = offset;
 	}
 	
-	
+	//Marshal data to byte stream.
 	@Override
 	public byte[] Marshal(int invocation) {
 				

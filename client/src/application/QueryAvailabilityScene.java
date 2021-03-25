@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 
 public class QueryAvailabilityScene {
 	private static ReplyMessage reply;
-		
+	//The Interface for Query Availability Service.	
 	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
 	    // Instantiate a new Grid Pane
@@ -230,7 +230,7 @@ public class QueryAvailabilityScene {
 	    stage.show();
 	    
 	}
-	
+	//Generate the list of label with list of date range.
 	public static Label generateList(DateRange[] d) {
 		String temp = "";
 

@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-
+//Connect to the server.
 public class Connection {
 	
 	private String hostname;
@@ -151,7 +151,7 @@ public class Connection {
 		}
 
 	}
-	
+	//Unpack the reply message from server.
 	private ReplyMessage unpack(byte[] data) {
 		
 		int typeLen = data[24];

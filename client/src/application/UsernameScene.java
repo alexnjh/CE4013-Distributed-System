@@ -11,7 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
+//Interface to enter the Client name.
 public class UsernameScene {
 	public static void showScene(Stage stage, Connection conn)
 	{
