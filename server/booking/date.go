@@ -121,7 +121,7 @@ func (d *Date) Plus(v Date) (*Date,error){
   hour := d.Hour + v.Hour
   minute := d.Minute + v.Minute
 
-  if minute > 60 {
+  if minute >= 60 {
     hour +=  minute / 60
     minute = minute % 60
   }

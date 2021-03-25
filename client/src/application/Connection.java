@@ -18,11 +18,16 @@ public class Connection {
 		this.portnumber = port;
 	}
 	
-	// Send Message
+	/*
+	 * Sent a message to the server.
+	 * If a exception is thrown, this is because the server did not reply after retrying 10 times.
+	 * @return ReplyException
+	 * @throws Exception 
+	 */
 	public ReplyMessage sendMessage(byte[] data) throws Exception{
 
 
-		for (int i = 0; i < 5; i++){        // recieve data until timeout
+		for (int i = 0; i < 10; i++){        // recieve data until timeout
             try {
 
         		DatagramSocket socket;
@@ -64,6 +69,13 @@ public class Connection {
 			
 	}
 
+	/*
+	 * Sent a monitoring request to the server.
+	 * This is a special method only used by the client to inform the server
+	 * on which address and port number to send the updates
+	 * @return Object[]
+	 * @throws IOException I/O error
+	 */
 	public Object[] sendMessageRetPort(byte[] data) throws IOException{
 		
 		DatagramSocket socket;
@@ -142,10 +154,10 @@ public class Connection {
 	
 	private ReplyMessage unpack(byte[] data) {
 		
-		int typeLen = data[4];
+		int typeLen = data[24];
 		System.out.println(Arrays.toString(data));
-		byte[] partA = Arrays.copyOfRange(data, 5, 5+typeLen);
-		byte[] partB = Arrays.copyOfRange(data, 5+typeLen, data.length);
+		byte[] partA = Arrays.copyOfRange(data, 25, 25+typeLen);
+		byte[] partB = Arrays.copyOfRange(data, 25+typeLen, data.length);
 		System.out.println(Helper.bytesToHex(partB));
 		return new ReplyMessage(new String(partA, StandardCharsets.UTF_8), partB);
 	}
