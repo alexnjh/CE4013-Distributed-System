@@ -9,20 +9,7 @@ import (
 	"time"
 )
 
-type MonitoringManager struct {
-	MonitorList []*Monitor
-
-	LastMessageList map[string]*[]byte
-	Start bool
-}
-
-type Monitor struct {
-	Message messagesocket.Message
-	Start    time.Time
-	End      time.Time
-	Interval time.Duration
-	Facility facility.Facility
-}
+var globalMonitor *MonitoringManager
 
 const (
 	CreateBooking string = "created"
@@ -31,8 +18,34 @@ const (
 	UpdateDurationBooking = "duration updated"
 )
 
-var globalMonitor *MonitoringManager
 
+// MonitoringManager manages all the active monitoring sessions and is
+// responsible for the creation and sending of monitoring updates to
+// the clients
+type MonitoringManager struct {
+  // List of active monitoring sessions
+	MonitorList []*Monitor
+  // A map storing the last message send by the server to active monitoring clients
+	LastMessageList map[string]*[]byte
+  // True = start monitoring manager, False = disable monitoring manager
+	Start bool
+}
+
+// Monitor is the implementaion of a monitoring session
+type Monitor struct {
+  // Store the client StartMonitoringMessage to identiy the client that initiate the monitoring session
+	Message messagesocket.Message
+  // The start time of the monitor session
+	Start    time.Time
+  // The end time of the monitor session
+	End      time.Time
+  // The total duration the monitor session remain active
+	Interval time.Duration
+  // The facility the monitoring session is monitoring
+	Facility facility.Facility
+}
+
+// Initialize the global monitor manager (Used by the server to manage monitoring sessions)
 func Init() {
 	globalMonitor = &MonitoringManager{
 		MonitorList: make([]*Monitor, 0),
@@ -41,6 +54,7 @@ func Init() {
 	}
 }
 
+// Return the global monitor manager object
 func GetManager() *MonitoringManager {
 	if globalMonitor == nil {
 		fmt.Println("Monitor not initialized. Initializing")
@@ -49,6 +63,7 @@ func GetManager() *MonitoringManager {
 	return globalMonitor
 }
 
+
 func (mgmt *MonitoringManager) MarkSubmit(msgObj messagesocket.Message) {
 	println(mgmt.LastMessageList)
 	mgmt.LastMessageList[msgObj.Addr.String()] = nil
@@ -56,6 +71,7 @@ func (mgmt *MonitoringManager) MarkSubmit(msgObj messagesocket.Message) {
 	println(mgmt.LastMessageList)
 	fmt.Printf("[MON] Marked %s as submitted\n", msgObj.Addr.String())
 }
+
 
 func (mgmt *MonitoringManager) Resend() {
 	fmt.Println("[MON] Resending unacknowledged messages")
@@ -69,6 +85,7 @@ func (mgmt *MonitoringManager) Resend() {
 		}
 	}
 }
+
 
 func (mgmt *MonitoringManager) goStartCheckingResend() {
 	defer func() {mgmt.Start = false}()
@@ -85,6 +102,7 @@ func (mgmt *MonitoringManager) goStartCheckingResend() {
 		mgmt.Resend()
 	}
 }
+
 
 func (mgmt *MonitoringManager) AddIP(msgObj messagesocket.Message, duration int64, facility facility.Facility) {
 	// Check that IP Exists and remove if so
@@ -104,6 +122,7 @@ func (mgmt *MonitoringManager) AddIP(msgObj messagesocket.Message, duration int6
 	fmt.Printf("Added %s to monitor list to monitor %s for %d seconds", msgObj.Addr.String(), facility, duration)
 }
 
+
 func (mgmt *MonitoringManager) PrintMonitoring() {
 	if len(mgmt.MonitorList) <= 0 {
 		fmt.Println("No IP monitoring facility")
@@ -115,6 +134,7 @@ func (mgmt *MonitoringManager) PrintMonitoring() {
 	}
 	fmt.Println("==========================================")
 }
+
 
 func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType string, bm *BookingManager, name string) {
 	mgmt.CheckExpiry() // Remove expired listeners
@@ -151,6 +171,7 @@ func (mgmt *MonitoringManager) Broadcast(facility facility.Facility, delType str
 	}
 }
 
+
 func (mgmt *MonitoringManager) BroadcastUsingMsgList(data []byte, list []messagesocket.Message){
 	for _, a := range list {
 		mgmt.LastMessageList[a.Addr.String()] = &data
@@ -158,6 +179,7 @@ func (mgmt *MonitoringManager) BroadcastUsingMsgList(data []byte, list []message
 		a.Reply(data)
 	}
 }
+
 
 func (mgmt *MonitoringManager) GetClientsToBroadcast(fac facility.Facility) []*Monitor {
 	inform := make([]*Monitor, 0)
@@ -170,6 +192,7 @@ func (mgmt *MonitoringManager) GetClientsToBroadcast(fac facility.Facility) []*M
 
 	return inform
 }
+
 
 func (mgmt *MonitoringManager) CheckExpiry() {
 	curTime := time.Now
@@ -185,12 +208,14 @@ func (mgmt *MonitoringManager) CheckExpiry() {
 	mgmt.MonitorList = unexpired
 }
 
+
 func (mgmt *MonitoringManager) RemoveIPIfExists(address net.Addr, fac facility.Facility) {
 	ind := mgmt.CheckIPExistIndex(address, fac)
 	if ind > -1 {
 		mgmt.RemoveIPWithIndex(ind)
 	}
 }
+
 
 func (mgmt *MonitoringManager) RemoveIPWithIndex(index int) {
 	if index > -1 {
@@ -200,6 +225,7 @@ func (mgmt *MonitoringManager) RemoveIPWithIndex(index int) {
 		mgmt.MonitorList = mgmt.MonitorList[:len(mgmt.MonitorList)-1]
 	}
 }
+
 
 func (mgmt *MonitoringManager) CheckIPExistIndex(address net.Addr, fac facility.Facility) int {
 	exist := -1
@@ -212,6 +238,7 @@ func (mgmt *MonitoringManager) CheckIPExistIndex(address net.Addr, fac facility.
 	}
 	return exist
 }
+
 
 // This is simply query availabilty but for monitoring
 func MarshalQueryAvailabilityMonitorMsg(raw [][]DateRange, actionString string, dname []Day) ([]byte, error) {
@@ -241,8 +268,6 @@ func MarshalQueryAvailabilityMonitorMsg(raw [][]DateRange, actionString string, 
 			payload = append(payload, temp...)
 		}
 	}
-
-
 
 	hdr := messagesocket.CreateMonitorAvailabilityHeader(uint16(len(payload)))
 	return append(hdr, payload...),nil

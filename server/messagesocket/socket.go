@@ -1,6 +1,6 @@
 /*
 
-Based on the follow message format
+Connection handler designed to follow the following message format
  _________________________________________________________________________________________________________________________________________________________________________________
 |                  |                                       |                             |                         |                                    |                        |
 |preamble (2 bytes)| SHA1-HASH of Creation Time (20 bytes) | Length of message (2 bytes) | Length of type (1 byte) | Type string (Length of type bytes) | Message data (y bytes) |
@@ -31,29 +31,34 @@ import (
 )
 
 var(
+  // Creates a new history list for storing replies that was sent
   histList = NewHistoryList(100)
 )
 
 const(
+  // Time to wait before assuming message is lost in transit
   timeOut = 10
+  // Size of buffer for saving the byte stream sent by the client
   maxBufferSize = 1024
+  // Min value for random number generator
   min = 0
+  // Max value for random number generator
   max = 10
 )
 
 type Message struct{
-  UniqID string
-  Addr  net.Addr
-  uconn net.PacketConn
-  Type  string
-  Data  []byte
-  Lost  bool
+  UniqID string // Message request ID
+  Addr  net.Addr // Host address of the client that sent this message
+  uconn net.PacketConn // Server address including port
+  Type  string // Type of message
+  Data  []byte // Byte array of the payload
+  Lost  bool // True = Simulate message lost, False =  Do not simulate message lost
 }
 
-// Reply to the client that send the message
+// Send a reply to the client that send the message
 func (m *Message) Reply(data []byte) error {
 
-  // Check if reply saved to list
+  // Check if reply is already in history list
   obj := histList.Get(m.UniqID)
   if obj != nil && obj.Processing == false{
     fmt.Printf("Reply processed putting data back\n")
@@ -61,6 +66,7 @@ func (m *Message) Reply(data []byte) error {
     obj.Data = data
   }
 
+  // Create random seed for random number generation
   rand.Seed(time.Now().UnixNano())
 
   // If lost simulation is true, do some randomization to simulate lost of packets
@@ -113,6 +119,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
     for{
 
+      // Read bytes from UDP socker
       n, addr, err := uconn.ReadFrom(buffer)
       if err != nil {
         log.Fatalf(err.Error())
@@ -231,7 +238,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
               if obj == nil{
                 histList.Add(message.UniqID)
               }else{
-                // If Processing is true means reply ready if not wait for reply to be ready
+                // If Processing is true means reply ready if not wait for reply to be ready before sending to the client
                 obj = histList.Get(message.UniqID)
                 if obj != nil && obj.Processing == true{
                   fmt.Printf("Found message in history list, resending reply.\n")
@@ -248,7 +255,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
                         msg.Reply(obj.Data)
                         return
                       }else if obj == nil{
-                        // Object deleted from linked list stop waiting
+                        // Object deleted from history list stop waiting
                         return
                       }
                     }
@@ -275,8 +282,8 @@ func NewMessageSocket(host string, port int) <-chan Message{
 }
 
 // Check if a message is valid by checking
-// 1. The preamble should be [00 00 00 00]
-// 2. The length of the message should be bigger than the header
+// 1. The preamble/mode should be valid
+// 2. There should be a request payload
 func checkValidMessage(data []byte) (uint16,bool){
 
   var lengthOfMsg uint16

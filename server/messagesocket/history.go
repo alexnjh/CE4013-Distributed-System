@@ -1,19 +1,19 @@
 package messagesocket
 
-import (
-)
-
+// Implementaion of a list of message replies
 type HistoryList struct{
-  maxQLen int
-  list []*HistoryEntry
+  maxQLen int // Maximum number of replies to keep
+  list []*HistoryEntry // Array of message replies
 }
 
+// HistoryEntry contains the saved reply in bytes and the Request ID the reply is for.
 type HistoryEntry struct{
   MessageID string
   Data  []byte
   Processing bool
 }
 
+// Create a new list
 func NewHistoryList(qlen int) *HistoryList{
   return &HistoryList{
     maxQLen: qlen,

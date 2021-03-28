@@ -8,6 +8,8 @@ import (
   "sort"
 )
 
+// The BookingManager manages all booking entries including adding
+// deleting, modifying of booking entries
 type BookingManager struct {
 	BookingList map[Day][]*Booking
 }
@@ -26,41 +28,69 @@ func NewGenericBookingManager() *BookingManager {
 	}
 }
 
+// Get a list of available timeslots/dates for a range of days
+// Date refers to the date structure
 func (b *BookingManager) GetAvailableDates(fac facility.Facility, days ...Day) [][]DateRange {
 
 	result := make([][]DateRange, len(days))
 
 	for idx, d := range days {
 		result[idx] = b.getAvailableDates(d, b.getBookings(d, fac))
-		// fmt.Printf("%v\n",len(b.getBookings(d,fac)))
 	}
 
 	return result
 
 }
 
-// This is based on the assumtion than when a booking is added the array it is always sorted
-// Therefore it is not necessary to sort the array
+// Get a list of available timeslots/dates for a single day
 func (b *BookingManager) getAvailableDates(day Day, list []*Booking) []DateRange {
 
-	initial := MinDate(day)
-
-	end := MaxDate(day)
-
-	availDates := make([]DateRange, len(list))
+	initial := MinDate(day) // Minimum date value possible for a specific day
+	end := MaxDate(day) // Maximum date value possible for a specific day
+	availDates := make([]DateRange, 0) // Create array to store available dates
 
 	if len(list) != 0 {
-
+    // Booking list is not empty
 		if initial.Equal(list[0].Start) && end.Equal(list[0].End) {
 			return make([]DateRange, 0)
 		}
 
-		availDates[0] = DateRange{
-			Start: initial,
-			End:   list[0].Start,
-		}
+    // Set the first available date end value to the end date of the first Booking
+    // if the start date of the first booking is the same as the minimum start date
+    if !initial.Equal(list[0].Start){
+      availDates = append(availDates, DateRange{
+        Start: initial,
+        End:   list[0].Start,
+      })
+    }
+
+    // Loop through all the bookings and add the list of avaiable dates to the list
+    // Avaiable dates can be created by taking the current booking end date and the
+    // next booking start date. We can do this because the booking list is sorted.
+    // The next date on the list is definately later then the current date that we
+    // are processing.
+    for idx, d := range list[1:] {
+      availDates = append(availDates, DateRange{
+        Start: list[idx].End,
+        End:   d.Start,
+      })
+    }
+
+    // If the end date of the last booking is not the maximum date value
+    // Create another date to fill the gap from the end date of the last booking
+    // to the maximum end date
+    if list[len(list)-1].End.LessThan(end) {
+      availDates = append(availDates, DateRange{
+        Start: list[len(list)-1].End,
+        End:   end,
+      })
+    }
+
+    return availDates
 
 	} else {
+
+    // Booking list is empty (The avaiable range is the MinDate -> MaxDate)
 		availDates = append(availDates, DateRange{
 			Start: initial,
 			End:   end,
@@ -68,29 +98,14 @@ func (b *BookingManager) getAvailableDates(day Day, list []*Booking) []DateRange
 		return availDates
 	}
 
-	for idx, d := range list[1:] {
-
-		availDates[idx+1] = DateRange{
-			Start: list[idx].End,
-			End:   d.Start,
-		}
-	}
-
-	if list[len(list)-1].End.LessThan(end) {
-		availDates = append(availDates, DateRange{
-			Start: list[len(list)-1].End,
-			End:   end,
-		})
-	}
-
-	return availDates
-
 }
 
+// Get booking entry based on ConfirmationID (Public method)
 func (b *BookingManager) GetBooking(id string) (*Booking, error) {
 	return b.getBooking(id)
 }
 
+// Get booking entry based on ConfirmationID actual implementation (Private method)
 func (b *BookingManager) getBooking(id string) (*Booking, error) {
 
 	for _, x := range b.BookingList {
@@ -105,6 +120,7 @@ func (b *BookingManager) getBooking(id string) (*Booking, error) {
 
 }
 
+// Get list of booking entries based on Facility and Day
 func (b *BookingManager) getBookings(day Day, fac facility.Facility) []*Booking {
 
 	result := make([]*Booking, 0)
@@ -119,6 +135,7 @@ func (b *BookingManager) getBookings(day Day, fac facility.Facility) []*Booking 
 
 }
 
+// Add a new booking entry
 func (b *BookingManager) AddBooking(
 	name string,
 	start Date,
@@ -145,6 +162,7 @@ func (b *BookingManager) AddBooking(
 
 }
 
+// Sort the booking list
 func sortBooking(b *BookingManager, start Date) {
 	// Sort in descending order
 	sort.SliceStable(b.BookingList[start.Day], func(i, j int) bool {
@@ -154,6 +172,7 @@ func sortBooking(b *BookingManager, start Date) {
 	})
 }
 
+// Check if a booking entry overlap with other booking entries
 func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking, bool) {
 
 	list := b.getBookings(booking.Start.Day, booking.Fac)
@@ -167,7 +186,7 @@ func (b *BookingManager) CheckForConflict(booking *Booking) (*Booking, bool) {
 	return nil, false
 }
 
-// Nil error = successful
+// UpdateBooking is responsible for the postponing or moving forward of a booking's timeslot
 func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
 	booking, err := b.getBooking(id)
@@ -233,6 +252,7 @@ func (b *BookingManager) UpdateBooking(id string, offset int) error {
 
 }
 
+// UpdateBookingDuration is responsible for the increasing or decreasing the duration of a booking entry
 func (b *BookingManager) UpdateBookingDuration(id string, offset int) error {
 
 	booking, err := b.getBooking(id)
@@ -287,12 +307,11 @@ func (b *BookingManager) UpdateBookingDuration(id string, offset int) error {
 	sortBooking(b, booking.Start)
 	GetManager().Broadcast(booking.Fac, UpdateDurationBooking, b, booking.BookerName)
 
-	// Sorting is not necessary here as the array was sorted in the first place
-
 	return nil
 
 }
 
+// Remove a booking from booking list
 func (b *BookingManager) RemoveBooking(id string) error {
 
 	for _, x := range b.BookingList {
@@ -306,8 +325,6 @@ func (b *BookingManager) RemoveBooking(id string) error {
 			}
 		}
 	}
-
-	// Sorting is not necessary here as the array was sorted in the first place
 	return errors.New("Invalid booking ID (" + id + ")")
 
 }

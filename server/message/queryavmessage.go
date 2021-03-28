@@ -7,11 +7,13 @@ import (
   "server/messagesocket"
 )
 
+// Message structure for querying availability dates for a certain facility
 type QueryAvailabilityMessage struct {
   Fac facility.Facility
   Days []booking.Day
 }
 
+// Marshal QueryAvailability service's reply from structure to bytes (Used by the server to reply to the client)
 func MarshalQueryAvailabilityMsg(raw [][]booking.DateRange, dname []booking.Day) ([]byte,error){
 
   payload := make([]byte, 0)
@@ -41,6 +43,7 @@ func MarshalQueryAvailabilityMsg(raw [][]booking.DateRange, dname []booking.Day)
   return append(hdr, payload...),nil
 }
 
+// Unmarshal QueryAvailabilityMessage from bytes into a structure to be processed by the program
 func UnmarshalQueryAvailabilityMsg(data []byte) (QueryAvailabilityMessage,error){
 
   index := 0
@@ -88,7 +91,7 @@ func UnmarshalQueryAvailabilityMsg(data []byte) (QueryAvailabilityMessage,error)
 
 }
 
-// check if bit set
+// Check if sign bit is set (Check if duration is negative or positive)
 func hasBit(n int, pos uint) bool {
     val := n & (1 << pos)
     return (val > 0)

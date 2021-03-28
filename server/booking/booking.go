@@ -9,17 +9,23 @@ import(
   "server/facility"
 )
 
+// Implementation of a booking entry
 type Booking struct{
+  // The user that created this booking
   BookerName string
+  // The ID of the booking entry
   ConfirmationID string
+  // The start date of the booking
   Start Date
+  // The end date of the booking
   End Date
+  // The facility that the user booked
   Fac facility.Facility
 }
 
-// Test marshal of what client is sending
+// Marshal booking object into bytes
 func (b *Booking) Marshal() []byte {
-  // The way we marshal is first string length (1 byte), string, etc
+
   bnLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.BookerName)))
   facLen, _ := hex.DecodeString(fmt.Sprintf("%02x", len(b.Fac)))
 
@@ -35,7 +41,7 @@ func (b *Booking) Marshal() []byte {
   return append(hdr, payload...)
 }
 
-// Unmarshal from client (receive booking info), send confirmation ID after booking
+// Un-marshal from bytes to booking object
 func Unmarshal(data []byte) (*Booking,error) {
   index := 0
   // Booker Name
@@ -76,6 +82,7 @@ func Unmarshal(data []byte) (*Booking,error) {
   },nil
 }
 
+// Create a new booking
 func NewBooking(name string, start Date, end Date, f facility.Facility) Booking{
 
   // Confirmation ID is a SHA1 hash in the form of BookerName@Current Time
