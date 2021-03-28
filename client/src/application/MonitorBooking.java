@@ -52,7 +52,7 @@ public class MonitorBooking {
         GridPane.setMargin(headerLabel, new Insets(20, 0, 20, 0));
 
 
-        // Add Fac selection
+        // Add Facility selection
         Label facLabel = new Label("Facility : ");
         mpane.add(facLabel, 0, 1);
         ComboBox dropFac = new ComboBox(FXCollections.observableArrayList(Facilities.facilities));
@@ -60,6 +60,7 @@ public class MonitorBooking {
     	dropFac.setEditable(true);
         mpane.add(dropFac, 1, 1);
 
+        // Add duration fields to enter
         TextField mhr = new TextField();
         TextField mmin = new TextField();
         TextField msec = new TextField();
@@ -67,14 +68,13 @@ public class MonitorBooking {
         mpane.add(durLabel, 0, 3);
         mpane.add(createDuration(mhr, mmin, msec), 1, 3);
 
-
+        // Submit/Cancel button
         Button submit = new Button("Create");
         Button cancel = new Button("Cancel");
         HBox.setMargin(submit, new Insets(0, 10, 0, 0));
         mpane.add(new HBox(submit, cancel), 1, 6);
 
         submit.setOnAction(e -> {
-
             // Get all required values
             String fac;
 
@@ -84,7 +84,7 @@ public class MonitorBooking {
 
             fac = (String) dropFac.getValue();
 
-            // Calculate seconds
+            // Convert hours/minutes/seconds fields to seconds
             long seconds = 0;
             boolean hrV = Helper.isNumeric(mhr.getText());
             boolean minV = Helper.isNumeric(mmin.getText());
@@ -104,12 +104,13 @@ public class MonitorBooking {
                 seconds += durSec;
             }
 
+            // Error prompt if all data fields are empty for duration
             if (Helper.isFalse(hrV, minV, secV)) {
                 alert.setContentText("Duration to monitor cannot be blank");
                 alert.showAndWait();
                 return;
-
             } else if (seconds <= 0) {
+                // Error prompt if total seconds is less than or equals to 0
                 alert.setContentText("Duration to monitor must be greater than 0 seconds");
                 alert.showAndWait();
                 return;
@@ -127,16 +128,16 @@ public class MonitorBooking {
                     // Generate bytes
                     int port = 1337;
 
-                    // Create booking request
+                    // Create monitor request
                     MonitorRequest req = new MonitorRequest(fac, submitMonitorDura);
 
                     updateProgress(1, 10);
 
+                    // Sends the monitor request message to the server and get back the port the client sends with
                     try {
                         Object[] repObj = conn.sendMessageRetPort(req.Marshal(invocation));
                         reply = (ReplyMessage) repObj[0];
                         port = (int) repObj[1];
-                        System.out.println("yargae" + port);
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                         System.out.println(e.toString());
@@ -166,7 +167,7 @@ public class MonitorBooking {
                     alert2.setContentText(new String(reply.getPayload(), StandardCharsets.UTF_8));
                     alert2.showAndWait();
                 } else if (reply.getType().equals("Availability")) {
-                    // Else show the users and the monitoring people
+                    // Else show the facility and start monitoring
                     AvailabilityReply a = new AvailabilityReply(reply.getPayload());
                     startMonitor(fac, submitMonitorDura, conn, a, (Integer) event.getSource().getValue(), invocation);
                 }
@@ -236,6 +237,7 @@ public class MonitorBooking {
     private static HBox boxUse;
     
     //New Interface when the Monitoring Starts 
+    // This interface is identical to that of query availbility, but with some extra fields
     public static void startMonitor(String facName, long duration, Connection conn, AvailabilityReply a, int listenPort, int invocation) {
         Stage vMonitor = new Stage();
         vMonitor.initModality(Modality.APPLICATION_MODAL);
@@ -249,12 +251,15 @@ public class MonitorBooking {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(tillTime);
 
+        // Field to show what facility we are currently monitoring
         Label info = new Label();
         info.setText("Currently monitoring " + facName + " for " + df.format(cal.getTime()));
 
+        // Field to show how long we are monitoring still
         Label tm = new Label();
         tm.setText("Time Remaining: " + convertSecondsToHumanReadable(duration));
 
+        // Field to show last action made for the facility
         Label action = new Label();
         action.setText("Last Action: Listening for changes");
 
@@ -276,6 +281,7 @@ public class MonitorBooking {
         vMonitor.setAlwaysOnTop(true);
         vMonitor.show();
 
+        // Service that listens and obtains monitoring broadcast packets from the server and parses them
         final Service<ReplyMessage> listenSvc = new Service<>() {
             @Override
             protected Task<ReplyMessage> createTask() {
@@ -305,6 +311,7 @@ public class MonitorBooking {
             }
         };
 
+        // Success handler when we successfully obtain a packet from the server
         listenSvc.setOnSucceeded(event -> {
             if (event.getSource().getValue() == null || !(event.getSource().getValue() instanceof ReplyMessage)) {
                 System.out.println("Err getting reply");
@@ -313,6 +320,7 @@ public class MonitorBooking {
             if (monReply != null) {
                 System.out.println(monReply.getType());
                 if (monReply.getType().equals("MonAvailability")) {
+                    // Update the UI with the latest update
                     AvailabilityReply aUpdate = new AvailabilityReply(monReply.getPayload(), true);
                     layout.getChildren().remove(boxUse);
                     action.setText("Last Action: " + aUpdate.getLastAct());
@@ -322,20 +330,23 @@ public class MonitorBooking {
             } else {
                 System.out.println("Timeout");
             }
+            // Reset the listener as we have finished with it
             listenSvc.reset();
         });
 
+        // Countdown timer to count down how long we are still monitoring
         Timer countdown = new Timer();
         countdown.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 if (!vMonitor.isShowing()) {
-                    // Window closed
+                    // Window closed, stop countdown
                     System.out.println("Cancelling as window is closed");
                     countdown.cancel();
                     return;
                 }
                 Platform.runLater(() -> {
+                    // Check if the listener is running, start it if it is not running
                     if (!listenSvc.isRunning()) {
                         //System.out.println("Starting to listen");
                         listenSvc.start();
@@ -344,7 +355,7 @@ public class MonitorBooking {
 
                 long curTime = System.currentTimeMillis();
                 long dura = (tillTime - curTime)/1000;
-                // Check if dura is 0 or negative
+                // Check if dura is 0 or negative, stop countdown job if so
                 if (dura <= 0) {
                     // Cancel
                     System.out.println("Stopping job");
@@ -363,6 +374,7 @@ public class MonitorBooking {
         }, 0, 1000);
     }
 
+    // Refresh the user interface for monitoring to display the availability
     private static void refresh(AvailabilityReply a) {
         boxUse = new HBox();
         for(Day b : Day.values()) {
@@ -374,6 +386,7 @@ public class MonitorBooking {
         }
     }
 
+    // Get UI text objects for each avaibility per day 
     private static Label generateList(DateRange[] d) {
         String temp = "";
 
@@ -388,6 +401,7 @@ public class MonitorBooking {
         return label;
     }
 
+    // Convert seconds to human readable text (hours, minutes, seconds)
     private static String convertSecondsToHumanReadable(long seconds) {
         long sec, min = 0, hour = 0;
         sec = seconds%60;
