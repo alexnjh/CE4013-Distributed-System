@@ -26,7 +26,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
+//Interface for Uppdate Booking service
 public class UpdateBooking {
 	
 	private static ReplyMessage reply;
@@ -106,10 +106,7 @@ public class UpdateBooking {
 					return;
 				}
 				
-				
-				
-			//if all input is empty			
-			//if(id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
+			//if empty	
 			if(!id.getText().isEmpty() &&Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {							
 				//sent the request to the server with the id
 	    		if(dif.getValue().toString().equalsIgnoreCase("postpone")) {
@@ -210,6 +207,7 @@ public class UpdateBooking {
 			return new HBox(t1, stdiv, t2, endiv);
 	}
 	
+	//Interface for Update Menu service E.g to update the duration or bring forward/postone booking.
 	public static void showUpdateMenu(Stage stage, Connection conn, String name, int invocation) {
 		//Stage stage, Connection conn, String name
 		TilePane menuUpdate = new TilePane();

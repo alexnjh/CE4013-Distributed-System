@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 public class MenuScene {
 	
 	public static int currentSelected = 0;
-	
+	// Show the menu of the services available with different semantics invocation.
 	public static void showScene(Stage stage, Connection conn, String name)
 	{
 		//layout for the booking of meeting room give out the rooms

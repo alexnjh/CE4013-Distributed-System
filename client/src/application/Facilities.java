@@ -7,11 +7,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
+//A list of facilities
 public class Facilities {
 	
 	public static String facilities[]= {"Meeting Room A","Meeting Room B", "Meeting Room C"};
-	
+	//Interface to choose facilities.
 	public static void showScene(Stage stage)
 	{	
 		

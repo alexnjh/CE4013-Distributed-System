@@ -35,16 +35,14 @@ public class Main extends Application {
 	
 	Connection connect;
 	
-
+	//Display of windows and Startup page of Client interface in GUI.
 	@Override
 	public void start(Stage primaryStage) throws UnknownHostException, MalformedURLException{
 		window = primaryStage;
-		primaryStage.setResizable(false);;
+		primaryStage.setResizable(false);
 		primaryStage.setTitle("Client Interface");
 
-	
 		ConnectionScene.showScene(window);
-
 
 	}
 

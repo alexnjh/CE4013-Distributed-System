@@ -7,7 +7,7 @@ public class ViewRequest{
 	public ViewRequest(String conid) {
 		this.id = conid;
 	}
-
+	//Marshal data to byte stream
 	public byte[] Marshal(int invocation) {
 		byte[] payload = id.getBytes();
 		byte[] header = Header.CreateViewBookingHeader(payload.length, invocation);

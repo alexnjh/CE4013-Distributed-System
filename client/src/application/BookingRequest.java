@@ -1,13 +1,13 @@
 package application;
 
 
-// booker name length (1 byte) | booker name (x bytes) | start date/time (7 bytes) | end date/time (7 bytes) | facility name length (1 byte) | facility name (x bytes)
+//Send Booking Request.
 public class BookingRequest implements RequestMessage{
-	
+	//variable to store name, facility, start/end date with timings.
 	private String name,facname;
 	private Date sdate,edate;
 	
-
+	//Constructor of booking request.
 	BookingRequest(String n, String f, Date s, Date e){
 		this.name = n;
 		this.facname = f;
@@ -15,7 +15,7 @@ public class BookingRequest implements RequestMessage{
 		this.edate = e;
 	}
 	
-	
+	//Marshal data to byte stream.
 	@Override
 	public byte[] Marshal(int invocation) throws Exception {
 

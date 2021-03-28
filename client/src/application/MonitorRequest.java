@@ -1,18 +1,18 @@
 package application;
-
+//Monitor Request Message.
 public class MonitorRequest implements RequestMessage {
 
     // duration (8 bytes) | facility (x bytes)
     private String facname;
     private long duration;
 
-
+    //Constructor
     MonitorRequest(String f, long duration) {
         this.facname = f;
         this.duration = duration;
     }
 
-
+    //Marshal data to byte stream.
     @Override
     public byte[] Marshal(int invocation) throws Exception {
 

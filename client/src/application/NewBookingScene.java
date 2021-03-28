@@ -31,11 +31,10 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
+//Interface for Adding Booking Service.
 public class NewBookingScene {
 	
 	private static ReplyMessage reply;
-	
 	
 	public static void showScene(Stage stage, Connection conn, String name, int invocation)
 	{
@@ -301,7 +300,7 @@ public class NewBookingScene {
             return dialogStage;
         }
     }
-	
+	//Helper for GUI
 	private static HBox createHrPane(TextField t1, TextField t2) {
 		
 	    t1.setMaxWidth(60);

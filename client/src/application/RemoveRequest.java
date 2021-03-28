@@ -1,14 +1,14 @@
 package application;
 
-//sent the confirmation id to the server
+//Remove Request Message.
 public class RemoveRequest implements RequestMessage {
 
     private String cid;
-
+    //Constructor of Remove Request Message.
     RemoveRequest(String id) {
         this.cid = id;
     }
-
+    //Marshal data to byte stream.
     @Override
     public byte[] Marshal(int invocation) {
 

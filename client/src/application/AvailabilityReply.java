@@ -4,7 +4,7 @@ import javafx.scene.control.TitledPane;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
+// Reply Message of Query Availibility service to return a list of date from server.
 public class AvailabilityReply {
 	private DateRange[][] list = new DateRange[7][];
 	private String lastAct = null;
@@ -43,7 +43,7 @@ public class AvailabilityReply {
 			
 		}
 	}
-
+	//Convert bytes to hexadecimal in a string.
 	private static String bytesToHex(byte[] in) {
 		final StringBuilder builder = new StringBuilder();
 		for(byte b : in) {
@@ -51,12 +51,12 @@ public class AvailabilityReply {
 		}
 		return builder.toString();
 	}
-
+	//Get the last action.
 	public String getLastAct() {
 		if (lastAct == null) return "";
 		else return lastAct;
 	}
-
+	//Get the availiability reply from server.
 	public AvailabilityReply(byte[] orig, boolean hasString) {
 		// Get the string out first
 		int stringLength = orig[0];
@@ -103,7 +103,7 @@ public class AvailabilityReply {
 		}
 
 	}
-	
+	//Array of Date Range. 
 	public DateRange[] getDateRanges(Day a) {
 		return list[a.ordinal()];
 	}

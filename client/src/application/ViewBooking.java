@@ -25,7 +25,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+//Interface for View Booking Service.
 public class ViewBooking {
 	private static ReplyMessage reply;
 	
@@ -142,6 +142,8 @@ public class ViewBooking {
 	       
 	
 	}
+	
+//Another interface to show the booking the client requested.
 public static void viewBook(String title, String id, String name, String sTime, String eTime) {
 		
 		Stage vBook = new Stage();
@@ -181,12 +183,7 @@ public static void viewBook(String title, String id, String name, String sTime, 
 		layout.add(headerLabel, 0,0,2,1);
 		GridPane.setHalignment(headerLabel, HPos.CENTER);
 		GridPane.setMargin(headerLabel, new Insets(20, 0,20,0));
-		
-	    
-		//addAll(label, facName, sT, startTime, eT, endTime, closeButton);
-		
-		//Button modify= new Button("Modify");
-	    
+		   
 		layout.setAlignment(Pos.CENTER);
 		
 		HBox.setMargin(label2, new Insets(0, 10, 0, 0));
