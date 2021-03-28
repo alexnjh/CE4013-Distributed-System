@@ -56,6 +56,7 @@ func UnmarshalQueryAvailabilityMsg(data []byte) (QueryAvailabilityMessage,error)
 
   d := make([]booking.Day, 0)
 
+  // Check every bit to know which day to query
   if hasBit(int(data[index]), uint(booking.Monday)) {
     d = append(d, booking.Monday)
   }

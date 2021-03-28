@@ -110,6 +110,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
   go func(msg chan<-Message) {
 
+    // Listen of port for UDP packets
   	uconn, err := net.ListenPacket("udp", url)
   	if err != nil {
       log.Fatalf(err.Error())
@@ -119,7 +120,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
     for{
 
-      // Read bytes from UDP socker
+      // Read bytes from UDP socket
       n, addr, err := uconn.ReadFrom(buffer)
       if err != nil {
         log.Fatalf(err.Error())
@@ -158,7 +159,7 @@ func NewMessageSocket(host string, port int) <-chan Message{
           var deadlineExceed = false
           remaining := lengthOfMsg-(n-24)
 
-          // Continue reading the remaining messages
+          // Continue reading the remaining message data if buffer cannot store it
           for {
 
             // Set a deadline and drop the packet if deadline reached
@@ -201,14 +202,14 @@ func NewMessageSocket(host string, port int) <-chan Message{
         message.Addr = addr
         message.uconn = uconn
 
-        // Simulate message lost
+        // Simulate reply message lost if needed by checking simulation mode in preamble
         if buffer[1] == uint8(2) || buffer[1] == uint8(4) || buffer[1] == uint8(5) || buffer[1] == uint8(7){
           message.Lost = true
         }else{
           message.Lost = false
         }
 
-        // Drop client packet simulating packet lost from client
+        // Drop client packet for simulating packet lost from client by checking simulation mode in preamble
         if buffer[1] == uint8(3) || buffer[1] == uint8(6){
           rand.Seed(time.Now().UnixNano())
 
@@ -219,26 +220,29 @@ func NewMessageSocket(host string, port int) <-chan Message{
 
         }
 
-
+        // Check if message header was succesfully unpacked
+        // Should not happen as the message is checked to be valid
         if err != nil {
-          // Should not happen as it is not added in yet
           log.Errorf("Failed to unpack message header")
           continue
         }else{
 
+            // Get message request ID
             message.UniqID = string(dataH[2:22])
 
             // Check invocation sementics
             if buffer[1] == uint8(1) || buffer[1] == uint8(5) || buffer[1] == uint8(6) || buffer[1] == uint8(7){
 
+              // If at most once invocation chosen, check if reply is in history list
               fmt.Printf("HEADER: %s\n",hex.EncodeToString(dataH))
               fmt.Printf("At most once chosen, Message ID: %s\n",hex.EncodeToString(dataH[2:22]))
 
               obj := histList.Get(message.UniqID)
               if obj == nil{
+                // if reply does not exist add a placeholder in the history list and set history entry's Processing value to false
                 histList.Add(message.UniqID)
               }else{
-                // If Processing is true means reply ready if not wait for reply to be ready before sending to the client
+                // If Processing is true means reply is ready if not wait for reply to be ready before sending to the client
                 obj = histList.Get(message.UniqID)
                 if obj != nil && obj.Processing == true{
                   fmt.Printf("Found message in history list, resending reply.\n")
@@ -312,14 +316,11 @@ func checkValidMessage(data []byte) (uint16,bool){
 
 }
 
-// Unpack the message received
+// Unpack the message received by stripping the request header
 // Error is not needed but leaving it in for future error handling improvements
 func unpack(data []byte) (Message,error){
 
   lengthOfType := uint8(data[0])
-
-  log.Infof("%v %v",data, lengthOfType)
-
   typeString := string(data[1:1+lengthOfType])
 
   return Message{

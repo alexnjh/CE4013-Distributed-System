@@ -8,9 +8,9 @@ type HistoryList struct{
 
 // HistoryEntry contains the saved reply in bytes and the Request ID the reply is for.
 type HistoryEntry struct{
-  MessageID string
-  Data  []byte
-  Processing bool
+  MessageID string // Request ID that the reply is saved for
+  Data  []byte // Reply message in bytes
+  Processing bool // True = Reply ready, False = Reply still processing
 }
 
 // Create a new list
