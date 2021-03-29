@@ -24,19 +24,6 @@ public class Facilities {
 		facSelect.add(roomBook, 0, 0, 1, 1);
 		facSelect.add(backBtn, 0, 5, 1, 1);
 		
-//		facSelect.getChildren().addAll(selectRoom,roomBook);
-//		//room.getChildren().addAll(new Label("Choose A Facility: "),roomBook);
-//		
-//		EventHandler<ActionEvent> bookAction = new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent e) {
-//				//request for the booking facility
-//				//go to the booking date page
-//				roomValue = roomBook.getValue().toString();
-//				System.out.println(roomBook.getValue());
-//				window.setScene(bookDate);
-//			}
-//		};
-//		roomBook.setOnAction(bookAction);
 		Scene scene = new Scene(facSelect,400,400);
 	    stage.setScene(scene);
 	    stage.show();

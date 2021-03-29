@@ -105,7 +105,7 @@ public class UpdateBookingDuration {
 				}
 				
 				
-						//if all input is empty			
+			//if all input is empty			
 			if(!id.getText().isEmpty() && Helper.isNumeric(hr.getText()) && Helper.isNumeric(min.getText())) {
 										
 				//sent the request to the server with the id
@@ -113,11 +113,10 @@ public class UpdateBookingDuration {
 	    			//offset will be addition to previous
 	    			// sent request to server
 	    			offset = mins + (hrs*60);
-	    			System.out.println("hello"+offset);
+	    			
 	       		}else{
 	    		//offset will be minus
 	       			offset = (-1)*(mins + (hrs*60)); 
-	       			System.out.println("decrease "+offset);
 	       		}
 	    	
 	    		ProgressForm pForm = new ProgressForm();
